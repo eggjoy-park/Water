@@ -1,14 +1,51 @@
-<!doctype html>
-<html lang="en">
+
+<!DOCTYPE html>
+<html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
-  <link href='/style.css' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>개인 소개</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+    <canvas id="bg"></canvas>
+    <main>
+        <div class="profile-card">
+            <div class="profile-header">
+                <img src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="프로필 사진" class="profile-picture">
+                <page-header title="이재환" subtitle="프론트엔드 개발자"></page-header>
+            </div>
+            <div class="profile-body">
+                <section id="bio">
+                    <h2>소개</h2>
+                    <p>안녕하세요! 저는 아름답고 인터랙티브한 웹 애플리케이션을 만드는 것을 좋아하는 열정적인 프론트엔드 개발자입니다. 사용자에게 최고의 경험을 제공하기 위해 항상 새로운 기술을 배우고 있습니다.</p>
+                </section>
+
+                <section id="interests">
+                    <h2>관심사</h2>
+                    <ul>
+                        <li>AI 동영상 제작</li>
+                    </ul>
+                </section>
+
+                <section id="social">
+                    <h2>소셜 미디어</h2>
+                    <social-links></social-links>
+                </section>
+
+                <section id="contact">
+                    <h2>연락처</h2>
+                    <p>저에게 연락하시려면 <a href="mailto:jaehwan.lee@example.com">jaehwan.lee@example.com</a>으로 이메일을 보내주세요.</p>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <script src="main.js" type="module"></script>
+    <script src="background.js"></script>
 </body>
 </html>
