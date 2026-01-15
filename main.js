@@ -1,4 +1,6 @@
 
+import './news-widget.js';
+
 class PageHeader extends HTMLElement {
   constructor() {
     super();
