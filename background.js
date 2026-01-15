@@ -18,15 +18,16 @@ scene.add(pointLight, ambientLight);
 const shapes = [];
 
 function addShape() {
-    const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-    const material = new THREE.MeshStandardMaterial({
-        color: Math.random() * 0xffffff,
-        roughness: 0.5,
-        metalness: 0.5,
+    const geometry = new THREE.BoxGeometry( 2, 2, 2 );
+    const edges = new THREE.EdgesGeometry( geometry );
+    const grayValue = Math.floor(Math.random() * 128) + 64; // shades of gray from dark to light
+    const grayHex = (grayValue << 16) | (grayValue << 8) | grayValue;
+    const material = new THREE.LineBasicMaterial({
+        color: grayHex,
     });
-    const shape = new THREE.Mesh(geometry, material);
+    const shape = new THREE.LineSegments(edges, material);
 
-    const [x, y, z] = Array(3).fill().map(() => THREE.MathUtils.randFloatSpread(15));
+    const [x, y, z] = Array(3).fill().map(() => THREE.MathUtils.randFloatSpread(20));
 
     shape.position.set(x, y, z);
     shape.rotation.set(Math.random(), Math.random(), Math.random());
@@ -35,18 +36,18 @@ function addShape() {
     shapes.push(shape);
 }
 
-Array(100).fill().forEach(addShape);
+Array(7).fill().forEach(addShape);
 
 
-camera.position.z = 5;
+camera.position.z = 15;
 
 function animate() {
   requestAnimationFrame(animate);
 
   shapes.forEach(shape => {
-      shape.rotation.x += 0.005;
-      shape.rotation.y += 0.005;
-      shape.rotation.z += 0.005;
+      shape.rotation.x += 0.001;
+      shape.rotation.y += 0.001;
+      shape.rotation.z += 0.001;
   });
 
   renderer.render(scene, camera);

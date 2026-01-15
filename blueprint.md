@@ -17,4 +17,5 @@ A personal introduction page that introduces a person with their name, a brief b
 
 ## Current Task
 
-Localize the page to Korean and enhance the visual design to be more modern and appealing.
+1. Localize the page to Korean and enhance the visual design to be more modern and appealing.
+2. Replace the image `/home/user/water/charles_me.jpg`.
