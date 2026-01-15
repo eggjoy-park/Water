@@ -41,13 +41,11 @@ function addCircle() {
 
 camera.position.z = 5;
 
-let frameCount = 0;
-
 function animate() {
   requestAnimationFrame(animate);
 
-  // Add a new circle every 10 frames
-  if (frameCount % 10 === 0) {
+  // Add a new circle if the total number is less than 8
+  if (circles.length < 8) {
       addCircle();
   }
 
@@ -58,8 +56,8 @@ function animate() {
       circle.userData.life += 1;
       const lifeRatio = circle.userData.life / circle.userData.maxLife;
 
-      // Scale increases over life
-      const scale = lifeRatio * 5;
+      // Scale increases over life (very slowly)
+      const scale = lifeRatio * 2;
       circle.scale.set(scale, scale, scale);
 
       // Opacity decreases over life
@@ -75,7 +73,6 @@ function animate() {
   }
 
   renderer.render(scene, camera);
-  frameCount++;
 }
 
 animate();
