@@ -22,7 +22,7 @@ const geometries = [
     new THREE.IcosahedronGeometry(3.0),
     new THREE.DodecahedronGeometry(3.0)
 ];
-const colors = [0xff6347, 0x4682b4, 0x9acd32, 0xffd700, 0x6a5acd];
+const colors = [0xD3D3D3];
 
 function addShape() {
     const geometry = geometries[Math.floor(Math.random() * geometries.length)];
@@ -32,7 +32,7 @@ function addShape() {
         roughness: 0.5,
         metalness: 0.8,
         transparent: true,
-        opacity: 0.7
+        opacity: 0.3
     });
     const shape = new THREE.Mesh(geometry, material);
 
