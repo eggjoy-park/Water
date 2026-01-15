@@ -31,6 +31,8 @@ function addShape() {
         color: color,
         roughness: 0.5,
         metalness: 0.8,
+        transparent: true,
+        opacity: 0.7
     });
     const shape = new THREE.Mesh(geometry, material);
 
