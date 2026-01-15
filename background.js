@@ -59,7 +59,7 @@ function animate() {
       const lifeRatio = circle.userData.life / circle.userData.maxLife;
 
       // Scale increases over life
-      const scale = lifeRatio * 10;
+      const scale = lifeRatio * 5;
       circle.scale.set(scale, scale, scale);
 
       // Opacity decreases over life
