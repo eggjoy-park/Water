@@ -1,3 +1,4 @@
+
 class NewsWidget extends HTMLElement {
   constructor() {
     super();
@@ -9,7 +10,26 @@ class NewsWidget extends HTMLElement {
   }
 
   async fetchNews() {
-    const apiUrl = 'https://proxy.cors.sh/https://newsapi.org/v2/top-headlines?country=kr&apiKey=0c46d53239c946d89eb83e9409bc3dba';
+    const category = this.getAttribute('category') || 'general';
+    let rssUrl = '';
+    let categoryTitle = '';
+
+    switch (category) {
+      case 'business':
+        rssUrl = 'https://www.mk.co.kr/rss/30100041/';
+        categoryTitle = '경제';
+        break;
+      case 'technology':
+        rssUrl = 'https://www.zdnet.co.kr/rss/topic/technology.xml';
+        categoryTitle = 'IT';
+        break;
+      default:
+        rssUrl = 'https://www.yonhapnewstv.co.kr/browse/feed/';
+        categoryTitle = '주요 뉴스';
+        break;
+    }
+
+    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
 
     try {
       const response = await fetch(apiUrl);
@@ -17,88 +37,52 @@ class NewsWidget extends HTMLElement {
         throw new Error('뉴스 정보를 가져오는 데 실패했습니다.');
       }
       const data = await response.json();
-      this.renderNews(data.articles);
+      this.renderNews(data.items, categoryTitle);
     } catch (error) {
       this.shadowRoot.innerHTML = `<p>${error.message}</p>`;
     }
   }
 
-  renderNews(articles) {
+  renderNews(articles, title) {
     const style = `
+      h3 {
+        font-size: 1.2rem;
+        color: #333;
+        margin-bottom: 1rem;
+      }
       ul {
         list-style-type: none;
         padding: 0;
       }
       li {
         margin-bottom: 10px;
-        cursor: pointer;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+      }
+      li:last-child {
+        border-bottom: none;
       }
       a {
         text-decoration: none;
         color: #333;
-        font-weight: bold;
+        font-weight: normal;
+        font-size: 0.9rem;
       }
-      .modal {
-        display: none;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0,0,0,0.4);
-      }
-      .modal-content {
-        background-color: #fefefe;
-        margin: 15% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 80%;
-      }
-      .close {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
+      a:hover {
+        text-decoration: underline;
+        color: #007bff;
       }
     `;
 
-    const newsList = articles.map(article => `
-      <li><a href="#" data-url="${article.url}">${article.title}</a></li>
+    const newsList = articles.slice(0, 5).map(article => `
+      <li><a href="${article.link}" target="_blank" rel="noopener noreferrer">${article.title}</a></li>
     `).join('');
 
     this.shadowRoot.innerHTML = `
       <style>${style}</style>
+      <h3>${title}</h3>
       <ul>${newsList}</ul>
-      <div id="newsModal" class="modal">
-        <div class="modal-content">
-          <span class="close">&times;</span>
-          <iframe id="newsFrame" width="100%" height="500px"></iframe>
-        </div>
-      </div>
     `;
-
-    this.shadowRoot.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const url = e.target.dataset.url;
-        this.openModal(url);
-      });
-    });
-
-    this.shadowRoot.querySelector('.close').addEventListener('click', () => {
-      this.closeModal();
-    });
-  }
-
-  openModal(url) {
-    this.shadowRoot.getElementById('newsFrame').src = url;
-    this.shadowRoot.getElementById('newsModal').style.display = 'block';
-  }
-
-  closeModal() {
-    this.shadowRoot.getElementById('newsModal').style.display = 'none';
   }
 }
 
