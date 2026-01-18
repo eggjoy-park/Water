@@ -10,54 +10,54 @@ class WeatherWidget extends HTMLElement {
 
   getWeatherIcon(weatherCode) {
     const icons = {
-      '113': '☀️', // Sunny/Clear
-      '116': '⛅️', // Partly cloudy
-      '119': '☁️', // Cloudy
-      '122': '☁️', // Overcast
-      '143': '🌫', // Mist
-      '176': '🌦', // Patchy rain possible
-      '179': '🌨', // Patchy snow possible
-      '182': '🌨', // Patchy sleet possible
-      '185': '🌨', // Patchy freezing drizzle possible
-      '200': '⛈', // Thundery outbreaks possible
-      '227': '🌬️', // Blowing snow
-      '230': ' blizzard', // Blizzard
-      '248': '🌫', // Fog
-      '260': '🌫', // Freezing fog
-      '263': '🌦', // Patchy light drizzle
-      '266': '🌦', // Light drizzle
-      '281': '🌨', // Freezing drizzle
-      '284': '🌨', // Heavy freezing drizzle
-      '293': '🌦', // Patchy light rain
-      '296': '🌦', // Light rain
-      '299': '🌧', // Moderate rain at times
-      '302': '🌧', // Moderate rain
-      '305': '🌧', // Heavy rain at times
-      '308': '🌧', // Heavy rain
-      '311': '🌨', // Light freezing rain
-      '314': '🌨', // Moderate or heavy freezing rain
-      '317': '🌨', // Light sleet
-      '320': '🌨', // Moderate or heavy sleet
-      '323': '🌨', // Patchy light snow
-      '326': '🌨', // Light snow
-      '329': '雪', // Moderate snow at times
-      '332': '雪', // Moderate snow
-      '335': '🌨', // Patchy heavy snow
-      '338': 'SNOW', // Heavy snow
-      '350': '🌨', // Ice pellets
-      '353': '🌦', // Light rain shower
-      '356': '🌧', // Moderate or heavy rain shower
-      '359': '🌧', // Torrential rain shower
-      '362': '🌨', // Light sleet showers
-      '365': '🌨', // Moderate or heavy sleet showers
-      '368': '🌨', // Light snow showers
-      '371': '🌨', // Moderate or heavy snow showers
-      '374': '🌨', // Light showers of ice pellets
-      '377': '🌨', // Moderate or heavy showers of ice pellets
-      '386': '⛈', // Patchy light rain with thunder
-      '389': '⛈', // Moderate or heavy rain with thunder
-      '392': '⛈', // Patchy light snow with thunder
-      '395': '⛈', // Moderate or heavy snow with thunder
+      '113': '☀️', // 맑음
+      '116': '⛅️', // 부분 흐림
+      '119': '☁️', // 흐림
+      '122': '☁️', // 온통 흐림
+      '143': '🌫', // 안개
+      '176': '🌦', // 소나기 가능
+      '179': '🌨', // 눈/진눈깨비 가능
+      '182': '🌨', // 진눈깨비 가능
+      '185': '🌨', // 어는 비 가능
+      '200': '⛈', // 천둥 번개 가능
+      '227': '🌬️', // 눈보라
+      '230': ' severe_blizzard', // 심한 눈보라
+      '248': '🌫', // 안개
+      '260': '🌫', // 어는 안개
+      '263': '🌦', // 가벼운 이슬비
+      '266': '🌦', // 가벼운 이슬비
+      '281': '🌨', // 어는 이슬비
+      '284': '🌨', // 강한 어는 이슬비
+      '293': '🌦', // 가벼운 소나기
+      '296': '🌦', // 가벼운 비
+      '299': '🌧', // 때때로 보통 비
+      '302': '🌧', // 보통 비
+      '305': '🌧', // 때때로 강한 비
+      '308': '🌧', // 강한 비
+      '311': '🌨', // 가벼운 어는 비
+      '314': '🌨', // 보통/강한 어는 비
+      '317': '🌨', // 가벼운 진눈깨비
+      '320': '🌨', // 보통/강한 진눈깨비
+      '323': '🌨', // 가벼운 눈
+      '326': '🌨', // 가벼운 눈
+      '329': '雪', // 때때로 보통 눈
+      '332': '雪', // 보통 눈
+      '335': '🌨', // 때때로 강한 눈
+      '338': ' severe_snow', // 강한 눈
+      '350': '🌨', // 얼음 알갱이
+      '353': '🌦', // 가벼운 비 소나기
+      '356': '🌧', // 보통/강한 비 소나기
+      '359': '🌧', // 폭우 소나기
+      '362': '🌨', // 가벼운 진눈깨비 소나기
+      '365': '🌨', // 보통/강한 진눈깨비 소나기
+      '368': '🌨', // 가벼운 눈 소나기
+      '371': '🌨', // 보통/강한 눈 소나기
+      '374': '🌨', // 가벼운 얼음 알갱이 소나기
+      '377': '🌨', // 보통/강한 얼음 알갱이 소나기
+      '386': '⛈', // 천둥을 동반한 가벼운 비
+      '389': '⛈', // 천둥을 동반한 보통/강한 비
+      '392': '⛈', // 천둥을 동반한 가벼운 눈
+      '395': '⛈', // 천둥을 동반한 보통/강한 눈
     };
     return icons[weatherCode] || ''
   }
@@ -78,7 +78,7 @@ class WeatherWidget extends HTMLElement {
   renderWeather(data) {
     const { current_condition: [current], nearest_area: [area] } = data;
     const temperature = current.temp_C;
-    const description = current.weatherDesc[0].value;
+    const description = current.lang_ko[0].value;
     const location = area.areaName[0].value;
     const weatherIcon = this.getWeatherIcon(current.weatherCode);
     const today = new Date();

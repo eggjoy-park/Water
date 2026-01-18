@@ -12,7 +12,7 @@ A personal introduction page that introduces a person with their name, a brief b
 *   **Interests Section:** A section listing the person's interests.
 *   **Social Media Section:** A section with links to social media profiles.
 *   **Contact Section:** A section with contact information.
-*   **Weather Widget:** A component that displays the current weather information in Korean, including the date and a weather icon.
+*   **Weather Widget:** A component that displays the current weather information in Korean, including the date and a weather icon. Internal comments and weather icon descriptions have been further localized for consistency.
 *   **News Widget:** A component that displays top news headlines from an RSS feed. Clicking a headline opens the article in a new browser tab.
 *   **Web Components:** The page will be built using Web Components for modularity and reusability.
 *   **Modern CSS:** The page will be styled with modern CSS features for a clean and responsive design, including a modern color palette, improved typography, and subtle animations.
