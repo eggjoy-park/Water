@@ -9,12 +9,10 @@ class NewsWidget extends HTMLElement {
   }
 
   async fetchNews() {
-    // Note: Using a proxy to bypass CORS issues with the News API on the client-side.
-    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-    const apiUrl = '/api/news-proxy'; // This should be your proxy endpoint that securely calls News API
+    const apiUrl = 'https://proxy.cors.sh/https://newsapi.org/v2/top-headlines?country=kr&apiKey=0c46d53239c946d89eb83e9409bc3dba';
 
     try {
-      const response = await fetch(`${proxyUrl}${apiUrl}`);
+      const response = await fetch(apiUrl);
       if (!response.ok) {
         throw new Error('뉴스 정보를 가져오는 데 실패했습니다.');
       }
