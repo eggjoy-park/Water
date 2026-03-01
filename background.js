@@ -1,76 +1,87 @@
-
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({
   canvas: document.querySelector('#bg'),
   alpha: true,
+  antialias: true,
 });
 
 renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-const circles = [];
-const colors = [0xff6347, 0x4682b4, 0x9acd32, 0xffd700, 0x6a5acd];
+// Star creation
+const starCount = 8000;
+const starGeometry = new THREE.BufferGeometry();
+const positions = new Float32Array(starCount * 3);
+const colors = new Float32Array(starCount * 3);
 
-function addCircle() {
-    const geometry = new THREE.CircleGeometry(1, 64);
-    const color = colors[Math.floor(Math.random() * colors.length)];
-    const material = new THREE.MeshBasicMaterial({
-        color: color,
-        transparent: true,
-        opacity: 1,
-    });
-    const circle = new THREE.Mesh(geometry, material);
+for (let i = 0; i < starCount; i++) {
+  // Random positions in a large cube
+  positions[i * 3] = (Math.random() - 0.5) * 1000;
+  positions[i * 3 + 1] = (Math.random() - 0.5) * 1000;
+  positions[i * 3 + 2] = (Math.random() - 0.5) * 1000;
 
-    const [x, y] = [
-        THREE.MathUtils.randFloatSpread(15),
-        THREE.MathUtils.randFloatSpread(15),
-    ];
-    const z = THREE.MathUtils.randFloat(-10, -20);
-    
-    circle.position.set(x, y, z);
-    
-    circle.userData = {
-        life: 0,
-        maxLife: THREE.MathUtils.randFloat(100, 200), // Lifespan in frames
-    };
-
-    scene.add(circle);
-    circles.push(circle);
+  // Add some color variety (white to blue-ish)
+  const color = new THREE.Color();
+  const hue = 0.6 + Math.random() * 0.1; // Blue range
+  const saturation = 0.2 + Math.random() * 0.3;
+  const lightness = 0.8 + Math.random() * 0.2;
+  color.setHSL(hue, saturation, lightness);
+  
+  colors[i * 3] = color.r;
+  colors[i * 3 + 1] = color.g;
+  colors[i * 3 + 2] = color.b;
 }
 
-camera.position.z = 5;
+starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+starGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+const starMaterial = new THREE.PointsMaterial({
+  size: 1.2,
+  vertexColors: true,
+  transparent: true,
+  opacity: 0.8,
+  blending: THREE.AdditiveBlending,
+  sizeAttenuation: true,
+});
+
+const stars = new THREE.Points(starGeometry, starMaterial);
+scene.add(stars);
+
+camera.position.z = 1;
+
+// Mouse movement for parallax
+let mouseX = 0;
+let mouseY = 0;
+window.addEventListener('mousemove', (event) => {
+  mouseX = (event.clientX - window.innerWidth / 2) / 100;
+  mouseY = (event.clientY - window.innerHeight / 2) / 100;
+});
 
 function animate() {
   requestAnimationFrame(animate);
 
-  // Add a new circle if the total number is less than 8
-  if (circles.length < 8) {
-      addCircle();
+  const posAttr = stars.geometry.attributes.position;
+  for (let i = 0; i < starCount; i++) {
+    // Move towards viewer (increasing Z)
+    posAttr.array[i * 3 + 2] += 1.5;
+
+    // Reset if it passes the camera or goes too far
+    if (posAttr.array[i * 3 + 2] > 500) {
+      posAttr.array[i * 3 + 2] = -500;
+      // Reposition x and y to fill the field
+      posAttr.array[i * 3] = (Math.random() - 0.5) * 1000;
+      posAttr.array[i * 3 + 1] = (Math.random() - 0.5) * 1000;
+    }
   }
+  posAttr.needsUpdate = true;
 
-  for (let i = circles.length - 1; i >= 0; i--) {
-      const circle = circles[i];
-      
-      // Animate the circle
-      circle.userData.life += 1;
-      const lifeRatio = circle.userData.life / circle.userData.maxLife;
-
-      // Scale increases over life (very slowly)
-      const scale = lifeRatio * 2;
-      circle.scale.set(scale, scale, scale);
-
-      // Opacity decreases over life
-      circle.material.opacity = 1 - lifeRatio;
-
-      // Remove circle when its life is over
-      if (circle.userData.life >= circle.userData.maxLife) {
-          scene.remove(circle);
-          circle.geometry.dispose();
-          circle.material.dispose();
-          circles.splice(i, 1);
-      }
-  }
+  // Parallax effect based on mouse
+  stars.rotation.x += (mouseY * 0.05 - stars.rotation.x) * 0.05;
+  stars.rotation.y += (mouseX * 0.05 - stars.rotation.y) * 0.05;
+  
+  // Constant slow rotation
+  stars.rotation.z += 0.0005;
 
   renderer.render(scene, camera);
 }

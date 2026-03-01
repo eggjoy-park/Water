@@ -40,7 +40,7 @@ main {
     border-radius: 15px;
     box-shadow: 0 10px 30px var(--shadow-color);
     overflow: hidden;
-    max-width: 600px;
+    max-width: 1000px;
     width: 100%;
     transition: transform 0.3s ease;
     backdrop-filter: blur(5px); /* Add a blur effect to the background */
@@ -70,6 +70,13 @@ main {
 
 .profile-body {
     padding: 2rem;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
 }
 
 section {
@@ -109,7 +116,22 @@ a:hover {
     text-decoration: underline;
 }
 
+.news-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+news-widget {
+    width: 48%;
+}
+
 /* Responsive Design */
+@media (max-width: 800px) {
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 600px) {
     body {
         padding: 1rem;
@@ -119,5 +141,12 @@ a:hover {
     }
     .profile-body {
         padding: 1.5rem;
+    }
+    .news-container {
+        flex-direction: column;
+    }
+    news-widget {
+        width: 100%;
+        margin-bottom: 1rem;
     }
 }
