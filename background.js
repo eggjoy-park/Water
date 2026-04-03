@@ -1,95 +1,92 @@
+
+import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js';
+
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({
-  canvas: document.querySelector('#bg'),
-  alpha: true,
-  antialias: true,
+    canvas: document.querySelector('#bg'),
+    antialias: true,
+    alpha: true
 });
 
+renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+camera.position.setZ(30);
 
-// Star creation
-const starCount = 8000;
-const starGeometry = new THREE.BufferGeometry();
-const positions = new Float32Array(starCount * 3);
-const colors = new Float32Array(starCount * 3);
+// Stars/Particles
+function addStar() {
+    const geometry = new THREE.SphereGeometry(0.15, 24, 24);
+    const material = new THREE.MeshStandardMaterial({ 
+        color: 0xffffff,
+        emissive: 0xffffff,
+        emissiveIntensity: 0.5
+    });
+    const star = new THREE.Mesh(geometry, material);
 
-for (let i = 0; i < starCount; i++) {
-  // Random positions in a large cube
-  positions[i * 3] = (Math.random() - 0.5) * 1000;
-  positions[i * 3 + 1] = (Math.random() - 0.5) * 1000;
-  positions[i * 3 + 2] = (Math.random() - 0.5) * 1000;
-
-  // Add some color variety (white to blue-ish)
-  const color = new THREE.Color();
-  const hue = 0.6 + Math.random() * 0.1; // Blue range
-  const saturation = 0.2 + Math.random() * 0.3;
-  const lightness = 0.8 + Math.random() * 0.2;
-  color.setHSL(hue, saturation, lightness);
-  
-  colors[i * 3] = color.r;
-  colors[i * 3 + 1] = color.g;
-  colors[i * 3 + 2] = color.b;
+    const [x, y, z] = Array(3).fill().map(() => THREE.MathUtils.randFloatSpread(100));
+    star.position.set(x, y, z);
+    scene.add(star);
 }
 
-starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-starGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+Array(300).fill().forEach(addStar);
 
-const starMaterial = new THREE.PointsMaterial({
-  size: 1.2,
-  vertexColors: true,
-  transparent: true,
-  opacity: 0.8,
-  blending: THREE.AdditiveBlending,
-  sizeAttenuation: true,
-});
+// Background light
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+const pointLight = new THREE.PointLight(0xffffff, 1);
+pointLight.position.set(20, 20, 20);
+scene.add(ambientLight, pointLight);
 
-const stars = new THREE.Points(starGeometry, starMaterial);
-scene.add(stars);
-
-camera.position.z = 1;
-
-// Mouse movement for parallax
+// Interactive Mouse movement
 let mouseX = 0;
 let mouseY = 0;
-window.addEventListener('mousemove', (event) => {
-  mouseX = (event.clientX - window.innerWidth / 2) / 100;
-  mouseY = (event.clientY - window.innerHeight / 2) / 100;
+
+document.addEventListener('mousemove', (event) => {
+    mouseX = (event.clientX - window.innerWidth / 2) / 100;
+    mouseY = (event.clientY - window.innerHeight / 2) / 100;
 });
 
+// Floating Torus
+const torusGeometry = new THREE.TorusGeometry(10, 3, 16, 100);
+const torusMaterial = new THREE.MeshStandardMaterial({ 
+    color: 0x4a90e2,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.2
+});
+const torus = new THREE.Mesh(torusGeometry, torusMaterial);
+scene.add(torus);
+
 function animate() {
-  requestAnimationFrame(animate);
+    requestAnimationFrame(animate);
 
-  const posAttr = stars.geometry.attributes.position;
-  for (let i = 0; i < starCount; i++) {
-    // Move towards viewer (increasing Z)
-    posAttr.array[i * 3 + 2] += 1.5;
+    torus.rotation.x += 0.01;
+    torus.rotation.y += 0.005;
+    torus.rotation.z += 0.01;
 
-    // Reset if it passes the camera or goes too far
-    if (posAttr.array[i * 3 + 2] > 500) {
-      posAttr.array[i * 3 + 2] = -500;
-      // Reposition x and y to fill the field
-      posAttr.array[i * 3] = (Math.random() - 0.5) * 1000;
-      posAttr.array[i * 3 + 1] = (Math.random() - 0.5) * 1000;
-    }
-  }
-  posAttr.needsUpdate = true;
+    // Smooth camera movement based on mouse
+    camera.position.x += (mouseX - camera.position.x) * 0.05;
+    camera.position.y += (-mouseY - camera.position.y) * 0.05;
+    camera.lookAt(scene.position);
 
-  // Parallax effect based on mouse
-  stars.rotation.x += (mouseY * 0.05 - stars.rotation.x) * 0.05;
-  stars.rotation.y += (mouseX * 0.05 - stars.rotation.y) * 0.05;
-  
-  // Constant slow rotation
-  stars.rotation.z += 0.0005;
+    // Make stars "twinkle"
+    scene.children.forEach(child => {
+        if (child instanceof THREE.Mesh && child.geometry instanceof THREE.SphereGeometry) {
+            child.position.y += 0.02;
+            if (child.position.y > 50) child.position.y = -50;
+            
+            // Random scaling for twinkle effect
+            const scale = 1 + Math.sin(Date.now() * 0.001 + child.position.x) * 0.2;
+            child.scale.set(scale, scale, scale);
+        }
+    });
 
-  renderer.render(scene, camera);
+    renderer.render(scene, camera);
 }
 
 animate();
 
 window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
 });

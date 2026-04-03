@@ -1,18 +1,30 @@
-# Personal Introduction Page
+# Personal Introduction Page (Spectacular Edition)
 
 ## Overview
 
-A personal introduction page that introduces a person with their name, a brief bio, and some of their interests. The page will be visually appealing and responsive. This version is localized for Korean users and features an enhanced, modern design.
+A high-end, visually stunning personal introduction page. This version leverages cutting-edge web technologies (Baseline 2024/2025) to create a premium, interactive, and immersive user experience.
 
 ## Features
 
-*   **Header:** A header with the person's name.
-*   **Profile Picture:** A profile picture of the person.
-*   **Bio Section:** A section with a brief biography.
-*   **Interests Section:** A section listing the person's interests.
-*   **Social Media Section:** A section with links to social media profiles.
-*   **Contact Section:** A section with contact information.
-*   **Weather Widget:** A component that displays the current weather information in Korean, including the date and a weather icon. Internal comments and weather icon descriptions have been further localized for consistency.
-*   **News Widget:** A component that displays top news headlines from different RSS feeds. It includes a UI with buttons to switch between categories (General, Business, Technology). Clicking a headline opens the article in a new browser tab.
-*   **Web Components:** The page will be built using Web Components for modularity and reusability.
-*   **Modern CSS:** The page will be styled with modern CSS features for a clean and responsive design, including a modern color palette, improved typography, and subtle animations.
+*   **Premium Visuals:**
+    *   **Glassmorphism:** Enhanced transparency and backdrop blur for a modern, layered feel.
+    *   **Vibrant Palette:** Utilizing `oklch()` color space for perceptually uniform and vivid colors.
+    *   **Dynamic Background:** An upgraded Three.js interactive background with particle effects.
+    *   **Glow & Depth:** Multi-layered shadows and glowing interactive elements using `:has()` and CSS custom properties.
+*   **Modern Layout & Components:**
+    *   **Web Components:** Modular UI using custom elements for the header, widgets, and social links.
+    *   **Container Queries:** Widgets that adapt seamlessly to their parent container's size.
+    *   **Logical Properties:** Future-proof layout using `margin-inline`, `padding-block`, etc.
+*   **Localized Content:** Fully localized in Korean (KO) with appropriate typography (Noto Sans KR).
+*   **Interactive Widgets:**
+    *   **Weather Widget:** Real-time localized weather updates.
+    *   **News Widget:** Category-based RSS feed reader with a polished UI.
+
+## Current Plan: Visual Overhaul
+
+1.  **Refine Color Palette:** Transition to `oklch` for all primary and secondary colors.
+2.  **Enhance Glassmorphism:** Update `.profile-card` with better `backdrop-filter` and semi-transparent borders.
+3.  **Add Entry Animations:** Implement intersection observer or CSS animations for staggered content reveal.
+4.  **Improve Typography:** Use fluid typography and better weight distribution for headlines.
+5.  **Interactive Glows:** Add subtle glowing effects to buttons and list items on hover.
+6.  **Background Sparkle:** Modify `background.js` to add more "sparkle" or interactivity to the Three.js scene.
