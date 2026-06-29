@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>고민 룰렛</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+</head>
+<body class="roulette-body">
+    <canvas id="roulette-bg"></canvas>
+
+    <main class="roulette-page">
+        <a href="index.html" class="go-home-link">← 메인으로 돌아가기</a>
+
+        <section class="roulette-card">
+            <div class="roulette-intro">
+                <p class="eyebrow">✦ 당신의 고민에 대한 답 ✦</p>
+                <h1 class="roulette-title">고민 룰렛</h1>
+                <p class="roulette-sub">돌아가는 운명의 순간, 지금 결정하세요.</p>
+            </div>
+
+            <div class="roulette-stage">
+                <div class="wheel-wrap">
+                    <div class="wheel-glow-ring"></div>
+                    <div class="wheel-pointer"></div>
+                    <div id="roulette-wheel" class="wheel"></div>
+                    <div class="wheel-orbit"></div>
+                </div>
+
+                <div class="roulette-controls">
+                    <button id="spin-button" type="button" class="spin-btn">
+                        <span class="spin-btn-text">룰렛 돌리기</span>
+                        <span class="spin-btn-shine"></span>
+                    </button>
+                    <button id="reset-button" type="button" class="reset-btn" hidden>다시 돌리기</button>
+                    <div id="roulette-result" class="roulette-result">
+                        <span class="result-icon">🎲</span>
+                        <span class="result-main">아직 결정되지 않았어요.</span>
+                    </div>
+                </div>
+            </div>
+
+            <button id="sound-toggle" class="sound-toggle" type="button" aria-label="소리 켜기/끄기" title="소리 켜기/끄기">
+                <span class="sound-icon-on">🔊</span>
+                <span class="sound-icon-off">🔇</span>
+            </button>
+        </section>
+    </main>
+
+    <canvas id="confetti-canvas"></canvas>
+    <script type="module" src="roulette.js"></script>
+</body>
+</html>
