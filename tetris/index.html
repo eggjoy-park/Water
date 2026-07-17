@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0d0d1a">
+    <title>Tetris</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="game"></canvas>
+    
+    <a href="../index.html" class="nav-btn home-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span>메인</span>
+    </a>
+    <a href="../flip-clock/index.html" class="nav-btn clock-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <span>플립시계</span>
+    </a>
+
+    <div id="touch-zones" aria-hidden="true">
+        <div class="zone left" data-action="left"></div>
+        <div class="zone right" data-action="right"></div>
+        <div class="zone rotate" data-action="rotate"></div>
+        <div class="zone drop" data-action="drop"></div>
+    </div>
+
+    <div id="pause-overlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pause-title">
+        <h2 id="pause-title">Paused</h2>
+        <p>Press <kbd>P</kbd> or <kbd>Escape</kbd> to Resume</p>
+        <button id="resume-btn">Resume</button>
+    </div>
+
+    <div id="gameover-overlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="gameover-title">
+        <h2 id="gameover-title">Game Over</h2>
+        <p id="final-score">Final Score: 0</p>
+        <p id="high-score">High Score: 0</p>
+        <button id="restart-btn">Play Again</button>
+    </div>
+
+    <div id="rotate-prompt" class="overlay hidden" role="alert">
+        <h2>Rotate Device</h2>
+        <p>Please play in portrait orientation</p>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

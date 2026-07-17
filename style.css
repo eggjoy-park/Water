@@ -621,6 +621,50 @@
         transform: translateX(-3px);
     }
 
+    /* 프로젝트 링크 스타일 */
+    #projects {
+        animation-delay: 1s;
+    }
+
+    .project-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .project-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 1.5rem;
+        border-radius: 16px;
+        background: linear-gradient(135deg, oklch(0.96 0.03 250 / 0.9), oklch(1 0 0 / 0.8));
+        border: 1px solid var(--border-glass);
+        color: var(--primary-oklch);
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 20px -8px oklch(0 0 0 / 0.15);
+    }
+
+    .project-link::after {
+        display: none;
+    }
+
+    .project-link:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 28px -8px var(--primary-glow);
+        background: linear-gradient(135deg, oklch(0.65 0.2 250 / 0.15), oklch(1 0 0 / 0.9));
+    }
+
+    .project-icon {
+        font-size: 1.5rem;
+    }
+
+    .project-name {
+        font-size: 1rem;
+    }
+
     @keyframes cardShimmer {
         0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.4; }
         50% { transform: translateY(-3%) rotate(2deg); opacity: 0.55; }

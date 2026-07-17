@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>플립시계</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="clock-container">
+        <div class="clock">
+            <div class="ampm" id="ampm"></div>
+            <div class="flip-card" id="hours-tens">
+                <div class="card-top"><div class="card-digit">0</div></div>
+                <div class="card-bottom"><div class="card-digit">0</div></div>
+                <div class="flap">
+                    <div class="flap-front"><div class="card-digit">0</div></div>
+                    <div class="flap-back"><div class="card-digit">0</div></div>
+                </div>
+            </div>
+            <div class="flip-card" id="hours-ones">
+                <div class="card-top"><div class="card-digit">0</div></div>
+                <div class="card-bottom"><div class="card-digit">0</div></div>
+                <div class="flap">
+                    <div class="flap-front"><div class="card-digit">0</div></div>
+                    <div class="flap-back"><div class="card-digit">0</div></div>
+                </div>
+            </div>
+            <div class="colon">:</div>
+            <div class="flip-card" id="minutes-tens">
+                <div class="card-top"><div class="card-digit">0</div></div>
+                <div class="card-bottom"><div class="card-digit">0</div></div>
+                <div class="flap">
+                    <div class="flap-front"><div class="card-digit">0</div></div>
+                    <div class="flap-back"><div class="card-digit">0</div></div>
+                </div>
+            </div>
+            <div class="flip-card" id="minutes-ones">
+                <div class="card-top"><div class="card-digit">0</div></div>
+                <div class="card-bottom"><div class="card-digit">0</div></div>
+                <div class="flap">
+                    <div class="flap-front"><div class="card-digit">0</div></div>
+                    <div class="flap-back"><div class="card-digit">0</div></div>
+                </div>
+            </div>
+            <div class="colon">:</div>
+            <div class="flip-card" id="seconds-tens">
+                <div class="card-top"><div class="card-digit">0</div></div>
+                <div class="card-bottom"><div class="card-digit">0</div></div>
+                <div class="flap">
+                    <div class="flap-front"><div class="card-digit">0</div></div>
+                    <div class="flap-back"><div class="card-digit">0</div></div>
+                </div>
+            </div>
+            <div class="flip-card" id="seconds-ones">
+                <div class="card-top"><div class="card-digit">0</div></div>
+                <div class="card-bottom"><div class="card-digit">0</div></div>
+                <div class="flap">
+                    <div class="flap-front"><div class="card-digit">0</div></div>
+                    <div class="flap-back"><div class="card-digit">0</div></div>
+                </div>
+            </div>
+        </div>
+        <div class="date-wrapper">
+            <div class="date" id="date"></div>
+            <div class="calendar-panel" id="calendar-panel">
+                <div class="calendar-header">
+                    <button class="cal-nav" id="cal-prev">&lt;</button>
+                    <span class="cal-title" id="cal-title"></span>
+                    <button class="cal-nav" id="cal-next">&gt;</button>
+                    <button class="cal-close" id="cal-close">&times;</button>
+                </div>
+                <div class="calendar-weekdays">
+                    <span class="wd-sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="wd-sat">토</span>
+                </div>
+                <div class="calendar-days" id="cal-days"></div>
+            </div>
+        </div>
+    </div>
+    <button class="format-btn" id="format-btn">
+        <svg class="format-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <span id="format-text">24H</span>
+    </button>
+    <a href="../index.html" class="nav-btn home-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span>메인</span>
+    </a>
+    <a href="../tetris/index.html" class="nav-btn tetris-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"/>
+            <rect x="14" y="3" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/>
+        </svg>
+        <span>테트릭스</span>
+    </a>
+    <script src="script.js"></script>
+</body>
+</html>
