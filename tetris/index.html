@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0d0d1a">
+    <title>Tetris</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="game"></canvas>
+    
+    <div id="touch-zones" aria-hidden="true">
+        <div class="zone left" data-action="left"></div>
+        <div class="zone right" data-action="right"></div>
+        <div class="zone rotate" data-action="rotate"></div>
+        <div class="zone drop" data-action="drop"></div>
+    </div>
+
+    <div id="pause-overlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pause-title">
+        <h2 id="pause-title">Paused</h2>
+        <p>Press <kbd>P</kbd> or <kbd>Escape</kbd> to Resume</p>
+        <button id="resume-btn">Resume</button>
+    </div>
+
+    <div id="gameover-overlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="gameover-title">
+        <h2 id="gameover-title">Game Over</h2>
+        <p id="final-score">Final Score: 0</p>
+        <p id="high-score">High Score: 0</p>
+        <button id="restart-btn">Play Again</button>
+    </div>
+
+    <div id="rotate-prompt" class="overlay hidden" role="alert">
+        <h2>Rotate Device</h2>
+        <p>Please play in portrait orientation</p>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

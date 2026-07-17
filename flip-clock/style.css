@@ -1,0 +1,372 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0c0c1e, #1a1a3e, #0c0c1e);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.clock-container { text-align: center; }
+
+.clock {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* ===== AM/PM (시계 앞쪽) ===== */
+.ampm {
+    font-size: 18px;
+    font-weight: bold;
+    color: #00d2ff;
+    text-shadow: 0 0 12px rgba(0, 210, 255, 0.4);
+    align-self: flex-start;
+    margin-top: 12px;
+    min-width: 36px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.ampm.visible {
+    opacity: 1;
+}
+
+/* ===== 플립 카드 ===== */
+.flip-card {
+    position: relative;
+    width: 100px;
+    height: 140px;
+    perspective: 300px;
+}
+
+.card-top,
+.card-bottom {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    overflow: hidden;
+}
+
+.card-top {
+    top: 0;
+    border-radius: 10px 10px 0 0;
+    background: linear-gradient(180deg, #2a2a4a, #1e1e3a);
+    border-bottom: 1px solid #000;
+}
+
+.card-bottom {
+    bottom: 0;
+    border-radius: 0 0 10px 10px;
+    background: linear-gradient(180deg, #1a1a35, #15152a);
+}
+
+.card-digit {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 140px;
+    line-height: 140px;
+    text-align: center;
+    font-size: 120px;
+    font-weight: bold;
+    color: #00d2ff;
+    text-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
+}
+
+.card-top .card-digit { top: 0; }
+.card-bottom .card-digit { bottom: 0; }
+
+/* ===== 플립 날개 ===== */
+.flap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    transform-origin: 50% 100%;
+    z-index: 3;
+    transform-style: preserve-3d;
+}
+
+.flap-front,
+.flap-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.flap-front {
+    border-radius: 10px 10px 0 0;
+    background: linear-gradient(180deg, #2a2a4a, #1e1e3a);
+    border-bottom: 1px solid #000;
+}
+
+.flap-back {
+    border-radius: 0 0 10px 10px;
+    background: linear-gradient(180deg, #1a1a35, #15152a);
+    transform: rotateX(180deg);
+}
+
+.flap-front .card-digit { top: 0; }
+.flap-back .card-digit { bottom: 0; }
+
+.flap-front::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+.flip-card.flipping .flap {
+    animation: flipDown 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes flipDown {
+    0%   { transform: rotateX(0deg); }
+    100% { transform: rotateX(-180deg); }
+}
+
+/* ===== 콜론 ===== */
+.colon {
+    font-size: 80px;
+    font-weight: bold;
+    line-height: 140px;
+    color: #00d2ff;
+    text-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
+    margin: 0 4px;
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0.2; }
+}
+
+/* ===== 날짜 ===== */
+.date-wrapper {
+    margin-top: 30px;
+    position: relative;
+}
+
+.date {
+    font-size: 22px;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: color 0.3s;
+    user-select: none;
+}
+
+.date:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* ===== 달력 패널 ===== */
+.calendar-panel {
+    margin-top: 16px;
+    background: linear-gradient(145deg, #1e1e40, #14142e);
+    border: 1px solid rgba(0, 210, 255, 0.15);
+    border-radius: 16px;
+    padding: 0 24px;
+    width: 360px;
+    margin-left: auto;
+    margin-right: auto;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.35s ease,
+                padding 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.calendar-panel.open {
+    max-height: 360px;
+    opacity: 1;
+    padding: 20px 24px;
+}
+
+.calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 16px;
+    position: relative;
+}
+
+.cal-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.9);
+    min-width: 140px;
+    text-align: center;
+}
+
+.cal-nav {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+}
+
+.cal-nav:hover {
+    background: rgba(0, 210, 255, 0.15);
+    color: #00d2ff;
+}
+
+.cal-close {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.25);
+    font-size: 20px;
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: color 0.2s, background 0.2s;
+}
+
+.cal-close:hover {
+    color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.1);
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 6px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.calendar-weekdays span {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.3);
+    padding: 2px 0;
+    letter-spacing: 1px;
+}
+
+.wd-sun { color: rgba(255, 100, 100, 0.5) !important; }
+.wd-sat { color: rgba(100, 150, 255, 0.5) !important; }
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0;
+}
+
+.cal-day {
+    text-align: center;
+    padding: 9px 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.6);
+    border-radius: 10px;
+    cursor: default;
+    transition: background 0.15s, color 0.15s;
+}
+
+.cal-day:not(.empty):hover {
+    background: rgba(0, 210, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.cal-day.empty { cursor: default; }
+
+.cal-day.today {
+    background: linear-gradient(135deg, rgba(0, 210, 255, 0.25), rgba(0, 150, 255, 0.2));
+    color: #00d2ff;
+    font-weight: 700;
+    text-shadow: 0 0 12px rgba(0, 210, 255, 0.6);
+}
+
+.cal-day.sunday { color: rgba(255, 100, 100, 0.65); }
+.cal-day.sunday.today { color: #00d2ff; }
+.cal-day.saturday { color: rgba(100, 150, 255, 0.65); }
+.cal-day.saturday.today { color: #00d2ff; }
+
+/* ===== 시간 형식 토글 버튼 (우측 상단) ===== */
+.format-btn {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 20px;
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    border: 1px solid rgba(0, 210, 255, 0.3);
+    border-radius: 20px;
+    cursor: pointer;
+    background: rgba(0, 210, 255, 0.08);
+    color: #00d2ff;
+    z-index: 10;
+    transition: background 0.3s, border-color 0.3s, transform 0.15s;
+}
+
+.format-btn:hover {
+    background: rgba(0, 210, 255, 0.18);
+    border-color: rgba(0, 210, 255, 0.5);
+}
+
+.format-btn:active {
+    transform: scale(0.95);
+}
+
+.format-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+/* ===== 반응형 ===== */
+@media (max-width: 600px) {
+    .flip-card { width: 60px; height: 84px; }
+    .card-top, .card-bottom, .flap { height: 42px; }
+    .card-digit { font-size: 72px; line-height: 84px; height: 84px; }
+    .colon { font-size: 48px; line-height: 84px; }
+    .date { font-size: 16px; }
+    .ampm { font-size: 13px; min-width: 28px; margin-top: 6px; }
+    .calendar-panel { width: 310px; }
+    .cal-title { font-size: 14px; }
+    .cal-day { font-size: 12px; padding: 7px 0; }
+    .format-btn { font-size: 11px; padding: 5px 16px; gap: 5px; }
+    .format-icon { width: 14px; height: 14px; }
+}
