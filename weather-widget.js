@@ -64,7 +64,7 @@ class WeatherWidget extends HTMLElement {
 
   async fetchWeather() {
     try {
-      const response = await fetch('https://wttr.in/?format=j1&lang=ko');
+      const response = await fetch('https://wttr.in/서울?format=j1&lang=ko');
       if (!response.ok) {
         throw new Error('날씨 정보를 가져오는 데 실패했습니다.');
       }
