@@ -1,0 +1,8 @@
+name = "board-worker"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "board-db"
+database_id = "990d5ca2-3938-4921-a189-9b7e8fd2ddd0"

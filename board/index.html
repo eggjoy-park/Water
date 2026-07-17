@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시판</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+</head>
+<body class="board-body">
+    <main class="board-page">
+        <a href="../index.html" class="go-home-link">&larr; 메인으로 돌아가기</a>
+
+        <section class="board-card">
+            <div class="board-header">
+                <h1 class="board-title">게시판</h1>
+                <p class="board-sub">여러분의 생각을 나눠보세요.</p>
+            </div>
+
+            <div class="board-toolbar">
+                <button id="write-btn" class="write-btn" type="button">
+                    <span>글쓰기</span>
+                </button>
+            </div>
+
+            <board-list api-base=""></board-list>
+
+            <div id="pagination" class="pagination"></div>
+        </section>
+    </main>
+
+    <script type="module" src="board.js"></script>
+</body>
+</html>
