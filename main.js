@@ -1,5 +1,6 @@
 
 import './news-widget.js';
+import './fortune-widget.js';
 
 class PageHeader extends HTMLElement {
   constructor() {
