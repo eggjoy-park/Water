@@ -331,11 +331,23 @@ async function handleGenerate(request: Request, env: Env): Promise<Response> {
       bytes[i] = binaryString.charCodeAt(i);
     }
 
+    const form = new FormData();
+    form.append("prompt", body.prompt);
+    form.append("image", new Blob([bytes], { type: "image/png" }), "image.png");
+    form.append("width", "1024");
+    form.append("height", "1024");
+
+    const formResponse = new Response(form);
+    const formStream = formResponse.body;
+    const formContentType = formResponse.headers.get("content-type")!;
+
     const response = await env.AI.run(
       "@cf/black-forest-labs/flux-2-dev",
       {
-        prompt: body.prompt,
-        image: Array.from(bytes),
+        multipart: {
+          body: formStream,
+          contentType: formContentType,
+        },
       },
     );
 
