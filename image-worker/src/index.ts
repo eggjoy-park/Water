@@ -332,7 +332,7 @@ async function handleGenerate(request: Request, env: Env): Promise<Response> {
     }
 
     const response = await env.AI.run(
-      "@cf/black-forest-labs/flux-1-dev",
+      "@cf/black-forest-labs/flux-2-dev",
       {
         prompt: body.prompt,
         image: Array.from(bytes),
