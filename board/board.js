@@ -200,6 +200,10 @@ class BoardPost extends HTMLElement {
         <h2 class="form-title">${isEdit ? '글 수정' : '새 글 작성'}</h2>
         <div id="post-form">
           <input type="text" name="title" placeholder="제목" value="${isEdit ? escapeAttr(existing.title) : ''}" required maxlength="100">
+          <div class="form-group">
+            <label for="image_url">이미지 URL (선택)</label>
+            <input type="url" name="image_url" id="image_url" placeholder="https://example.com/image.jpg" value="${isEdit ? escapeAttr(existing.image_url || '') : ''}" maxlength="500">
+          </div>
           <div class="textarea-wrap">
             <textarea name="content" placeholder="내용을 입력하세요..." rows="10" required maxlength="5000">${isEdit ? escapeHtml(existing.content) : ''}</textarea>
             <button type="button" class="emoji-toggle-btn" id="emoji-toggle" title="이모티콘">😊</button>
@@ -234,6 +238,7 @@ class BoardPost extends HTMLElement {
       const form = this.shadowRoot.getElementById('post-form');
       const title = form.querySelector('input[name="title"]').value;
       const content = form.querySelector('textarea[name="content"]').value;
+      const image_url = form.querySelector('input[name="image_url"]').value;
       const password = form.querySelector('input[name="password"]').value;
 
       if (!title || !content || !password) {
@@ -241,7 +246,7 @@ class BoardPost extends HTMLElement {
         return;
       }
 
-      const body = { title, content, password };
+      const body = { title, content, password, image_url: image_url || undefined };
 
       try {
         const url = isEdit ? `${API_BASE}/api/posts/${existing.id}` : `${API_BASE}/api/posts`;
@@ -299,6 +304,7 @@ class BoardPost extends HTMLElement {
             ${post.updated_at !== post.created_at ? `<span class="post-edited">(수정됨)</span>` : ''}
           </div>
         </div>
+        ${post.image_url ? `<div class="post-image"><img src="${escapeHtml(post.image_url)}" alt="${escapeHtml(post.title)}" loading="lazy"></div>` : ''}
         <div class="post-content">${escapeHtml(post.content).replace(/\n/g, '<br>')}</div>
         <div class="post-actions">
           <button class="like-btn ${this.liked ? 'liked' : ''}" id="like-btn">
@@ -394,7 +400,7 @@ class BoardPost extends HTMLElement {
     this.shadowRoot.getElementById('edit-btn').addEventListener('click', async () => {
       const pw = await showPasswordModal(this.shadowRoot, '글 수정 - 비밀번호 입력');
       if (!pw) return;
-      this.renderWriteForm({ ...post, _savedPassword: pw });
+      this.renderWriteForm({ ...post, _savedPassword: pw, image_url: post.image_url });
     });
 
     // Delete
@@ -497,6 +503,33 @@ const formStyles = `
     font-weight: 700;
     margin-bottom: 20px;
     color: var(--text-primary, #f0f0f0);
+  }
+  .form-group {
+    margin-bottom: 16px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 0.9em;
+    font-weight: 500;
+    color: var(--text-secondary, #999);
+    margin-bottom: 6px;
+  }
+  .form-group input[type="url"] {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.05);
+    color: var(--text-primary, #f0f0f0);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .form-group input[type="url"]:focus {
+    outline: none;
+    border-color: rgba(100, 160, 255, 0.5);
+    background: rgba(255,255,255,0.07);
   }
   input[type="text"], input[type="password"] {
     width: 100%;
@@ -648,6 +681,19 @@ const detailStyles = `
   }
   .post-meta { font-size: 0.85em; color: var(--text-secondary, #888); }
   .post-edited { margin-left: 6px; opacity: 0.7; }
+  .post-image {
+    margin: 20px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .post-image img {
+    width: 100%;
+    max-height: 600px;
+    object-fit: contain;
+    display: block;
+    background: rgba(0,0,0,0.3);
+  }
   .post-content {
     font-size: 1.05em;
     line-height: 1.7;

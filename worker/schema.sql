@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS posts (
   title TEXT NOT NULL,
   content TEXT NOT NULL,
   password TEXT NOT NULL,
+  image_url TEXT,
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now')),
   like_count INTEGER DEFAULT 0

@@ -58,7 +58,7 @@ async function handlePosts(request, env) {
     const total = countResult?.total || 0;
 
     const { results } = await env.DB.prepare(
-      `SELECT p.id, p.title, p.created_at, p.updated_at, p.like_count,
+      `SELECT p.id, p.title, p.content, p.image_url, p.created_at, p.updated_at, p.like_count,
               (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) as comment_count
        FROM posts p
        ORDER BY p.created_at DESC
@@ -72,14 +72,14 @@ async function handlePosts(request, env) {
     const body = await parseBody(request);
     if (!body.ok) return error(body.error);
 
-    const { title, content, password } = body.data;
+    const { title, content, password, image_url } = body.data;
     if (!title || !content || !password) return error('제목, 내용, 비밀번호를 모두 입력해주세요.');
 
     const hashedPw = await hashPassword(password);
 
     const result = await env.DB.prepare(
-      'INSERT INTO posts (title, content, password, created_at, updated_at) VALUES (?, ?, ?, ?, ?)'
-    ).bind(title, content, hashedPw, now(), now()).run();
+      'INSERT INTO posts (title, content, password, image_url, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'
+    ).bind(title, content, hashedPw, image_url || null, now(), now()).run();
 
     return json({ id: result.meta.last_row_id, message: '글이 작성되었습니다.' }, 201);
   }
@@ -105,7 +105,7 @@ async function handlePost(request, env, postId) {
     const body = await parseBody(request);
     if (!body.ok) return error(body.error);
 
-    const { title, content, password } = body.data;
+    const { title, content, password, image_url } = body.data;
     if (!password) return error('비밀번호를 입력해주세요.');
 
     const hashedPw = await hashPassword(password);
@@ -114,8 +114,8 @@ async function handlePost(request, env, postId) {
     if (post.password !== hashedPw) return error('비밀번호가 일치하지 않습니다.', 403);
 
     await env.DB.prepare(
-      "UPDATE posts SET title = COALESCE(?, title), content = COALESCE(?, content), updated_at = ? WHERE id = ?"
-    ).bind(title || null, content || null, now(), postId).run();
+      "UPDATE posts SET title = COALESCE(?, title), content = COALESCE(?, content), image_url = COALESCE(?, image_url), updated_at = ? WHERE id = ?"
+    ).bind(title || null, content || null, image_url || null, now(), postId).run();
 
     return json({ message: '글이 수정되었습니다.' });
   }
@@ -233,9 +233,9 @@ export default {
     // Ensure visitor_id cookie
     const visitorId = getVisitorId(request);
     let setCookieHeader = null;
-    if (!visitorId) {
-      const newId = crypto.randomUUID();
-      setCookieHeader = `visitor_id=${newId}; Path=/; Max-Age=31536000; SameSite=Lax`;
+      if (!visitorId) {
+        const newId = crypto.randomUUID();
+        setCookieHeader = `visitor_id=${newId}; Path=/; Max-Age=31536000; SameSite=Lax`;
     }
 
     try {
