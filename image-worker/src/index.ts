@@ -1,6 +1,5 @@
 export interface Env {
   AI: Ai;
-  GALLERY: KVNamespace; // new KV binding
 }
 
 const HTML_CONTENT = `<!DOCTYPE html>
@@ -54,7 +53,6 @@ const HTML_CONTENT = `<!DOCTYPE html>
     }
     textarea:focus { outline: none; border-color: #667eea; }
     #prompt { min-height: 80px; font-size: 16px; }
-
     .size-row {
       display: flex;
       gap: 12px;
@@ -121,25 +119,49 @@ const HTML_CONTENT = `<!DOCTYPE html>
       transition: border-color 0.2s; text-decoration: none;
     }
     .download-btn:hover { border-color: #667eea; }
-    .placeholder {
-      width: 100%;
-      aspect-ratio: 1;
-      max-height: 512px;
-      border: 2px dashed #333;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #555;
-      font-size: 14px;
+    .prompt-display {
+      margin-top: 16px;
+      padding: 16px;
+      background: #2a2a2a;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #e0e0e0;
+      border-left: 3px solid #667eea;
+      text-align: left;
     }
-    /* Gallery modal styles */
-    .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; }
-    .modal.hidden { display:none; }
-    .modal-content { background:#1a1a1a; padding:20px; border-radius:8px; max-width:90%; max-height:90%; overflow:auto; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:10px; }
-    .grid img { width:100%; border-radius:4px; border:1px solid #333; }
-    .close { position:absolute; top:10px; right:15px; font-size:24px; cursor:pointer; }
+    .prompt-display .label {
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+    .prompt-display .text {
+      word-break: break-word;
+      background: #1a1a1a;
+      padding: 12px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #ccc;
+    }
+    .prompt-display + .prompt-display { margin-top: 8px; }
+    .gallery-btn {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 10px 24px;
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .gallery-btn:hover { opacity: 0.9; }
+    .gallery-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -149,70 +171,61 @@ const HTML_CONTENT = `<!DOCTYPE html>
 
     <div class="form-group">
       <label>Prompt</label>
-      <textarea id="prompt" placeholder="e.g. A small lighthouse on the sea at sunset, pastel colors, beautiful sky"></textarea>
+      <textarea id="prompt" placeholder="예: 바다 위의 작은 등대, 석양, 파스텔 색감, 아름다운 하늘"></textarea>
     </div>
-
-
-    </div>
-
 
     <div class="form-group">
       <label>Image Size</label>
       <div class="size-row">
         <select id="size">
-          <option value="1024x1024">1024 x 1024 (Square)</option>
-          <option value="768x1024">768 x 1024 (Portrait)</option>
-          <option value="1024x768">1024 x 768 (Landscape)</option>
-          <option value="512x512">512 x 512 (Small Square)</option>
+          <option value="1024x1024">1024 x 1024 (정사각형)</option>
+          <option value="768x1024">768 x 1024 (세로형)</option>
+          <option value="1024x768">1024 x 768 (가로형)</option>
+          <option value="512x512">512 x 512 (작은 정사각형)</option>
         </select>
       </div>
     </div>
 
-    <button id="generateBtn" onclick="generate()">Generate Image</button>
+    <button id="generateBtn" onclick="generate()">이미지 생성</button>
 
     <div class="loading" id="loading">
       <div class="spinner"></div>
-      <p>Generating image...</p>
+      <p>이미지 생성 중...</p>
     </div>
 
     <div class="error" id="error"></div>
 
-<div class="result" id="result" style="display:none;">
-       <div class="result-label">Generated Image</div>
-       <img id="resultImg">
-       <div class="prompt-display" style="margin-top: 16px; padding: 16px; background: #2a2a2a; border-radius: 8px; font-size: 13px; line-height: 1.5; color: #e0e0e0; border-left: 3px solid #667eea;">
-           <div style="margin-bottom: 8px; font-size: 14px; font-weight: 600; color: #ffffff;">사용된 프롬프트 (번역됨):</div>
-           <div id="displayed-prompt" style="word-break: break-word; background: #1a1a1a; padding: 12px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.4; color: #ccc;">
-           </div>
-       </div>
-        <br>
-        <button id="saveBtn" style="margin-top:8px;">Save to Gallery</button>
-        <button id="postToBoardBtn" style="margin-top:8px;">갤러리 게시판에 등록</button>
-        <button id="openGalleryBtn" style="margin-top:8px;">Open Gallery</button>
-        <a class="download-btn" id="downloadBtn" download="ai-generated.png">Download</a>
-     </div>
+    <div class="result" id="result" style="display:none;">
+      <div class="result-label">생성된 이미지</div>
+      <img id="resultImg">
+      <div class="prompt-display">
+        <div class="label">한국어 프롬프트:</div>
+        <div class="text" id="displayed-korean-prompt"></div>
+      </div>
+      <div class="prompt-display">
+        <div class="label">영어 프롬프트:</div>
+        <div class="text" id="displayed-english-prompt"></div>
+      </div>
+      <div>
+        <a class="download-btn" id="downloadBtn" download="ai-generated.png">다운로드</a>
+        <button class="gallery-btn" id="postToGalleryBtn">갤러리 게시판에 등록</button>
+      </div>
+    </div>
   </div>
-
-<div id="galleryModal" class="modal hidden">
-  <div class="modal-content">
-    <span class="close" id="closeModal">&times;</span>
-    <h2>Gallery</h2>
-    <div id="galleryGrid" class="grid"></div>
-  </div>
-</div>
 
   <script>
-    let currentBlobUrl = null;
-
+    var currentBlobUrl = null;
+    var lastKoreanPrompt = '';
 
     async function generate() {
-      const promptText = document.getElementById('prompt').value.trim();
-      if (!promptText) { showError('Please enter a prompt.'); return; }
+      var promptText = document.getElementById('prompt').value.trim();
+      if (!promptText) { showError('프롬프트를 입력하세요.'); return; }
 
-      const btn = document.getElementById('generateBtn');
-      const loading = document.getElementById('loading');
-      const result = document.getElementById('result');
-      const error = document.getElementById('error');
+      lastKoreanPrompt = promptText;
+      var btn = document.getElementById('generateBtn');
+      var loading = document.getElementById('loading');
+      var result = document.getElementById('result');
+      var error = document.getElementById('error');
 
       btn.disabled = true;
       loading.classList.add('active');
@@ -221,40 +234,46 @@ const HTML_CONTENT = `<!DOCTYPE html>
 
       if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
 
-        const fullPrompt = promptText;
-
-      const sizeVal = document.getElementById('size').value.split('x');
+      var sizeVal = document.getElementById('size').value.split('x');
 
       try {
-        const res = await fetch('/api/generate', {
+        var res = await fetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            prompt: fullPrompt,
+            prompt: promptText,
             width: parseInt(sizeVal[0]),
             height: parseInt(sizeVal[1])
           }),
         });
 
-        const text = await res.text();
-        let json;
-        try { json = JSON.parse(text); } catch { throw new Error('Server error occurred.'); }
+        var text = await res.text();
+        var json;
+        try { json = JSON.parse(text); } catch { throw new Error('서버 오류가 발생했습니다.'); }
 
         if (json.error) throw new Error(json.error);
-        if (!json.image) throw new Error('No image data received.');
+        if (!json.image) throw new Error('이미지 데이터를 받지 못했습니다.');
 
-        const binaryString = atob(json.image);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
-        const blob = new Blob([bytes], { type: 'image/png' });
+        // 원본 base64 저장 (나중에 갤러리 등록용)
+        window._lastBase64Image = json.image;
+        
+        // 한국어/영어 프롬프트 저장
+        window._lastKoreanPrompt = json.korean_prompt || lastKoreanPrompt;
+        window._lastEnglishPrompt = json.english_prompt || '';
+        
+        var binaryString = atob(json.image);
+        var bytes = new Uint8Array(binaryString.length);
+        for (var i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+        var blob = new Blob([bytes], { type: 'image/png' });
         currentBlobUrl = URL.createObjectURL(blob);
 
-document.getElementById('resultImg').src = currentBlobUrl;
-         document.getElementById('downloadBtn').href = currentBlobUrl;
-         document.getElementById('displayed-prompt').textContent = json.prompt;
-         result.style.display = 'block';
+        document.getElementById('resultImg').src = currentBlobUrl;
+        document.getElementById('downloadBtn').href = currentBlobUrl;
+        document.getElementById('displayed-korean-prompt').textContent = window._lastKoreanPrompt;
+        document.getElementById('displayed-english-prompt').textContent = window._lastEnglishPrompt;
+        result.style.display = 'block';
       } catch (e) {
-        showError(e.message || 'An unknown error occurred.');
+        showError(e.message || '알 수 없는 오류가 발생했습니다.');
       } finally {
         btn.disabled = false;
         loading.classList.remove('active');
@@ -262,113 +281,58 @@ document.getElementById('resultImg').src = currentBlobUrl;
     }
 
     function showError(msg) {
-      const el = document.getElementById('error');
+      var el = document.getElementById('error');
       el.textContent = msg;
       el.classList.add('active');
     }
 
-    async function saveToGallery() {
-      const imgElem = document.getElementById('resultImg');
-      if (!imgElem || !imgElem.src) { alert('No image to save.'); return; }
+    document.getElementById('postToGalleryBtn').addEventListener('click', async function() {
+      if (!window._lastBase64Image) { alert('이미지가 없습니다.'); return; }
+      var btn = this;
+      btn.disabled = true;
+      btn.textContent = '등록 중...';
       try {
-        const resp = await fetch(imgElem.src);
-        const blob = await resp.blob();
-        const base64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        });
-        const prompt = document.getElementById('displayed-prompt').textContent || '';
-        const res = await fetch('/api/gallery', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: base64, prompt })
-        });
-        const data = await res.json();
-        if (data.success) alert('Saved to gallery');
-        else alert('Save failed: ' + (data.error || 'unknown'));
-      } catch (e) {
-        alert('Error saving to gallery');
-      }
-    }
-
-    async function openGallery() {
-      try {
-        const res = await fetch('/api/gallery');
-        const data = await res.json();
-        const grid = document.getElementById('galleryGrid');
-        grid.innerHTML = '';
-        (data.images || []).forEach((item: any) => {
-          const img = document.createElement('img');
-          img.src = 'data:image/png;base64,' + item.image;
-          img.title = item.prompt;
-          grid.appendChild(img);
-        });
-        document.getElementById('galleryModal').classList.remove('hidden');
-      } catch (e) {
-        alert('Failed to load gallery');
-      }
-    }
-
-    document.getElementById('saveBtn').addEventListener('click', saveToGallery);
-    document.getElementById('postToBoardBtn').addEventListener('click', postToBoardGallery);
-    document.getElementById('openGalleryBtn').addEventListener('click', openGallery);
-    document.getElementById('closeModal').addEventListener('click', () => {
-      document.getElementById('galleryModal').classList.add('hidden');
-    });
-
-    async function postToBoardGallery() {
-      const imgElem = document.getElementById('resultImg');
-      const prompt = document.getElementById('displayed-prompt').textContent || '';
-      if (!imgElem || !imgElem.src) { alert('No image to post.'); return; }
-
-      const title = prompt.slice(0, 50) + (prompt.length > 50 ? '...' : '');
-      const content = `AI 이미지 생성으로 만든 작품입니다.\n\n프롬프트: ${prompt}`;
-
-      // Convert image to base64 data URL for upload
-      try {
-        const resp = await fetch(imgElem.src);
-        const blob = await resp.blob();
-        const base64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        });
-
-        // Use a data URL for the image_url - we'll store it as base64 in the content
-        // For now, we'll post with the base64 data URL
-        const imageDataUrl = `data:image/png;base64,${base64}`;
-
-        // Get the board worker URL
-        const boardApiBase = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+        var base64 = window._lastBase64Image;
+        console.log('Base64 length:', base64.length);
+        // 이미지가 너무 크면 (130KB 이상) data URL로 저장하지 않음
+        if (base64.length > 130000) {
+          alert('이미지가 너무 큽니다. 직접 이미지 URL을 복사해주세요.');
+          btn.disabled = false;
+          btn.textContent = '갤러리 게시판에 등록';
+          return;
+        }
+        var boardApiBase = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
           ? 'http://localhost:8787'
           : 'https://board-worker.eggjoy.workers.dev';
-
-        const res = await fetch(`${boardApiBase}/api/posts`, {
+        var res = await fetch(boardApiBase + '/api/gallery/posts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            title: `🎨 ${title}`,
-            content,
-            image_url: imageDataUrl,
-            password: 'gallery123' // Default password for gallery posts
+            title: (window._lastEnglishPrompt || '').slice(0, 50),
+            content: '한국어: ' + (window._lastKoreanPrompt || lastKoreanPrompt) + '\\n\\nEnglish: ' + (window._lastEnglishPrompt || ''),
+            image_url: 'data:image/png;base64,' + base64,
+            password: 'gallery123'
           })
         });
-
-        const data = await res.json();
-        if (data.id) {
-          alert('갤러리 게시판에 등록되었습니다!');
-          // Optionally redirect to the post
-          // window.open(`https://your-domain/board/post.html?id=${data.id}`, '_blank');
-        } else {
-          alert('등록 실패: ' + (data.error || 'Unknown error'));
+        var data = await res.json();
+        console.log('Response:', res.status, data);
+        if (!res.ok) {
+          console.error('API Error:', res.status, data);
+          throw new Error(data.error || `HTTP ${res.status}`);
         }
+        alert('갤러리 게시판에 등록되었습니다!');
+        // 갤러리 페이지 URL 구성
+        var galleryUrl = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+          ? 'http://localhost:8787/board/gallery.html?page=1'
+          : 'https://eggjoy.workers.dev/board/gallery.html?page=1';
+        window.location.href = galleryUrl;
       } catch (e) {
-        alert('Error posting to gallery board: ' + e.message);
+        alert('등록 실패: ' + (e.message || '오류가 발생했습니다.'));
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '갤러리 게시판에 등록';
       }
-    }
+    });
   </script>
 </body>
 </html>`;
@@ -379,34 +343,59 @@ const CORS_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
-async function translateAndEnhancePrompt(koreanPrompt: string, env: Env): Promise<string> {
+async function translateAndEnhancePrompt(koreanPrompt: string, env: Env): Promise<{ korean: string; english: string }> {
   try {
-    // 1단계: 한국어를 영어로 번역
-    let translated = koreanPrompt; // 기본값은 원본
-    
+    // 1단계: 한국어 프롬프트 보충/구체화 (LLM으로 더 자세하게 묘사)
+    let enhancedKorean = koreanPrompt;
     try {
-      // Helsinki NLP Opus 모델 시도 (한국어->영어 특화)
-      const translateResponse = await env.AI.run("@cf/huggingface/helsinki-nlp/opus-mt-ko-en", {
-        text: koreanPrompt,
+      const enhanceKoreanResponse = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", {
+        messages: [
+          {
+            role: "system",
+            content: "당신은 AI 이미지 생성을 위한 프롬프트 전문가입니다. 사용자의 간단한 한국어 설명을 받아, 이미지 생성에 최적화되도록 더 구체적이고 풍부하게 한국어로 확장해주세요. 조명, 구도, 분위기, 스타일, 텍스처, 색감 등 시각적 디테일을 추가하세요. 설명만 출력하고 다른 말은 하지 마세요.",
+          },
+          {
+            role: "user",
+            content: koreanPrompt
+          }
+        ],
+        max_tokens: 500,
+        temperature: 0.7,
       });
-      
-      // 다양한 응답 형식 처리
+
+      if (typeof enhanceKoreanResponse === 'string') {
+        enhancedKorean = enhanceKoreanResponse;
+      } else if (enhanceKoreanResponse && typeof enhanceKoreanResponse === 'object') {
+        if ('response' in enhanceKoreanResponse && typeof (enhanceKoreanResponse as any).response === 'string') {
+          enhancedKorean = (enhanceKoreanResponse as any).response;
+        } else if ('generated_text' in enhanceKoreanResponse && typeof (enhanceKoreanResponse as any).generated_text === 'string') {
+          enhancedKorean = (enhanceKoreanResponse as any).generated_text;
+        } else if ('text' in enhanceKoreanResponse && typeof (enhanceKoreanResponse as any).text === 'string') {
+          enhancedKorean = (enhanceKoreanResponse as any).text;
+        }
+      }
+    } catch {
+      enhancedKorean = koreanPrompt;
+    }
+
+    // 2단계: 보충된 한국어 프롬프트를 영어로 번역
+    let translated = enhancedKorean;
+    try {
+      const translateResponse = await env.AI.run("@cf/huggingface/helsinki-nlp/opus-mt-ko-en", {
+        text: enhancedKorean,
+      });
       if (typeof translateResponse === 'string') {
         translated = translateResponse;
       } else if (translateResponse && typeof translateResponse === 'object') {
-        // 가능한 응답 속성들 확인
         if ('translation' in translateResponse && typeof (translateResponse as any).translation === 'string') {
           translated = (translateResponse as any).translation;
         } else if ('translation_text' in translateResponse && typeof (translateResponse as any).translation_text === 'string') {
           translated = (translateResponse as any).translation_text;
         } else if ('generated_text' in translateResponse && typeof (translateResponse as any).generated_text === 'string') {
-          // 일부 모델은 generated_text를 반환
           translated = (translateResponse as any).generated_text;
         } else if ('text' in translateResponse && typeof (translateResponse as any).text === 'string') {
           translated = (translateResponse as any).text;
-        }
-        // 배열 형태의 응답도 처리 가능
-        else if (Array.isArray(translateResponse) && translateResponse.length > 0) {
+        } else if (Array.isArray(translateResponse) && translateResponse.length > 0) {
           const firstItem = translateResponse[0];
           if (typeof firstItem === 'string') {
             translated = firstItem;
@@ -419,15 +408,13 @@ async function translateAndEnhancePrompt(koreanPrompt: string, env: Env): Promis
           }
         }
       }
-    } catch (translateError) {
-      // Helsinki 모델 실패 시 m2m100으로 폴백
+    } catch {
       try {
         const translateResponse = await env.AI.run("@cf/meta/m2m100-1.2b", {
-          text: koreanPrompt,
+          text: enhancedKorean,
           source_lang: "ko",
           target_lang: "en",
         });
-        
         if (typeof translateResponse === 'string') {
           translated = translateResponse;
         } else if (translateResponse && typeof translateResponse === 'object') {
@@ -437,71 +424,47 @@ async function translateAndEnhancePrompt(koreanPrompt: string, env: Env): Promis
             translated = (translateResponse as any).translated_text;
           }
         }
-      } catch (fallbackError) {
-        // 두 모델 모두 실패하면 원본 유지
-        translated = koreanPrompt;
+      } catch {
+        translated = enhancedKorean;
       }
     }
 
-    // 2단계: 번역된 영어를 이미지 생성을 위한 상세한 프롬프트로 향상
+    // 3단계: 영어 프롬프트 추가 보충 (이미지 생성 최적화)
+    let finalEnglish = translated;
     try {
-const enhanceResponse = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", {
+      const enhanceResponse = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", {
         messages: [
           {
             role: "system",
-            content: `You are a master artist and visual storyteller who specializes in creating rich, evocative descriptions for AI image generation that would inspire masterful paintings, illustrations, and concept art. Transform simple descriptions into lush, atmospheric, and emotionally resonant visual narratives that capture not just what is seen, but what is felt.
-
-Your expertise includes:
-- **Painterly Description**: Using language that evokes texture, brushwork, and artistic techniques (impasto, glazing, scumbling, wet-on-wet, palette knife texture)
-- **Atmospheric Storytelling**: Creating mood through light, weather, time of day, and environmental storytelling that suggests narrative and emotion
-- **Sensory Translation**: Converting non-visual senses (sound, temperature, humidity, smell) into visual metaphors and cues
-- **Art Historical References**: Drawing from master painters and art movements when appropriate (Caravaggio lighting, Monet water and light, Turner atmospherics, Hopper loneliness, Wyeth texture)
-- **Composition as Emotion**: Using composition not just technically, but to evoke feelings (isolation through negative space, tension through diagonal lines, serenity through horizontal lines)
-- **Color Psychology**: Understanding how color combinations evoke specific emotions and atmospheres
-
-Atmospheric & Artistic Enhancement Framework:
-1. **LIGHT AS EMOTION**: Describe light not just technically, but emotionally (the last lonely ray of sunset, light filtering through ancient forest canopy like liquid gold, moonlight silvering the waves with melancholy beauty)
-2. **TEXTURE & MATERIAL POETRY**: Describe surfaces with artistic sensitivity (the weathered wood tells stories of centuries of storms, rust blooms like strange flowers on the metal, fabric drapes with the weight of unspoken secrets)
-3. **ENVIRONMENTAL STORYTELLING**: Use weather, season, time, and natural elements to convey mood (autumn leaves falling like memories, fog that obscures and reveals in equal measure, the oppressive heat that makes colors seem to vibrate)
-4. **COLOR AS NARRATIVE**: Go beyond color names to color relationships and emotional resonance (shadows that aren't just black but deep violets and blues, highlights that aren't just white but warm golds and cool silvers)
-5. **COMPOSITIONAL RHYTHM**: Describe how elements flow together to create visual music (repeating shapes that create harmony, contrasting textures that create visual conversation, negative space that breathes)
-6. **ARTISTIC TECHNIQUE REFERENCES**: When relevant, invoke specific artistic approaches (the soft focus of a pastel drawing, the bold impasto of oil paint, the delicate line work of ink illustration, the luminous glazing of Renaissance masters)
-7. **MYTHIC & POETIC DIMENSION**: When appropriate, elevate description to poetic or mythic level (not just a tree, but a sentinel watching over ancient waters; not just a house, but a keeper of forgotten dreams)
-
-For photographic elements, frame them as artistic choices: "rendered with the soft focus and grain of vintage film" rather than just "shot at f/1.8"; "the luminous quality of a Winslow Homer watercolor" rather than just "watercolor style".
-
-Output ONLY the enhanced artistic English prompt as a single, flowing paragraph that reads like a vivid art critic's description or a painter's notes. Make it so rich in visual and emotional detail that an artist would feel inspired to create. No explanations, just the prompt.`,
+            content: "You are a master artist who creates rich, evocative descriptions for AI image generation. Transform the given prompt into a lush, atmospheric visual narrative optimized for FLUX/SD models. Add lighting, composition, mood, style, texture, color details. Output ONLY the enhanced artistic English prompt as a single flowing paragraph. No explanations, just the prompt.",
           },
           {
             role: "user",
             content: translated
           }
         ],
-        max_tokens: 1200,
+        max_tokens: 500,
         temperature: 0.6,
       });
 
-      let enhanced = translated; // 기본값은 번역된 텍스트
       if (typeof enhanceResponse === 'string') {
-        enhanced = enhanceResponse;
+        finalEnglish = enhanceResponse;
       } else if (enhanceResponse && typeof enhanceResponse === 'object') {
         if ('response' in enhanceResponse && typeof (enhanceResponse as any).response === 'string') {
-          enhanced = (enhanceResponse as any).response;
+          finalEnglish = (enhanceResponse as any).response;
         } else if ('generated_text' in enhanceResponse && typeof (enhanceResponse as any).generated_text === 'string') {
-          enhanced = (enhanceResponse as any).generated_text;
+          finalEnglish = (enhanceResponse as any).generated_text;
         } else if ('text' in enhanceResponse && typeof (enhanceResponse as any).text === 'string') {
-          enhanced = (enhanceResponse as any).text;
+          finalEnglish = (enhanceResponse as any).text;
         }
       }
-      
-      return enhanced.trim();
-    } catch (enhanceError) {
-      // 향상 실패 시 번역된 텍스트 반환
-      return translated;
+    } catch {
+      finalEnglish = translated;
     }
+
+    return { korean: enhancedKorean.trim(), english: finalEnglish.trim() };
   } catch {
-    // 전체 프로세스 실패 시 원본 반환
-    return koreanPrompt;
+    return { korean: koreanPrompt, english: koreanPrompt };
   }
 }
 
@@ -514,9 +477,16 @@ async function handleGenerate(request: Request, env: Env): Promise<Response> {
     }>();
 
     let prompt = body.prompt;
+    let koreanPrompt = '';
+    let englishPrompt = '';
     const koreanRegex = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
     if (koreanRegex.test(prompt)) {
-      prompt = await translateAndEnhancePrompt(prompt, env);
+      const result = await translateAndEnhancePrompt(prompt, env);
+      koreanPrompt = result.korean;
+      englishPrompt = result.english;
+      prompt = englishPrompt;
+    } else {
+      englishPrompt = prompt;
     }
 
     const response = await env.AI.run(
@@ -554,64 +524,22 @@ async function handleGenerate(request: Request, env: Env): Promise<Response> {
       }
       base64Image = btoa(binaryString);
     } else {
-      throw new Error("Failed to generate image.");
+      throw new Error("이미지 생성에 실패했습니다.");
     }
 
     return new Response(
-      JSON.stringify({ image: base64Image, prompt: prompt }),
+      JSON.stringify({ image: base64Image, korean_prompt: koreanPrompt, english_prompt: englishPrompt }),
       { headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
     );
   } catch (e: any) {
     let errorMsg = e.message || "알 수 없는 오류가 발생했습니다.";
     if (errorMsg.includes("NSFW") || errorMsg.includes("3030")) {
-      errorMsg = "Prompt was blocked by content policy. Please try a different prompt.";
+      errorMsg = "콘텐츠 정책에 의해 차단되었습니다. 다른 프롬프트를 사용해 주세요.";
     }
     return new Response(
       JSON.stringify({ error: errorMsg }),
       { status: 500, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
     );
-  }
-}
-
-// Gallery POST handler
-async function handleGalleryPost(request: Request, env: Env): Promise<Response> {
-  try {
-    const body = await request.json<{ image: string; prompt: string }>();
-    const { image, prompt } = body;
-    if (!image || !prompt) {
-      return new Response(JSON.stringify({ error: "Missing fields" }), { status: 400, headers: { "Content-Type": "application/json", ...CORS_HEADERS } });
-    }
-    const id = crypto.randomUUID();
-    const timestamp = Date.now();
-    const record = { id, image, prompt, timestamp };
-    await env.GALLERY.put(id, JSON.stringify(record));
-    // Update index
-    const indexKey = "gallery_index";
-    const existing = await env.GALLERY.get(indexKey);
-    const ids: string[] = existing ? JSON.parse(existing) : [];
-    ids.unshift(id);
-    if (ids.length > 100) ids.length = 100;
-    await env.GALLERY.put(indexKey, JSON.stringify(ids));
-    return new Response(JSON.stringify({ success: true, id }), { headers: { "Content-Type": "application/json", ...CORS_HEADERS } });
-  } catch (e: any) {
-    return new Response(JSON.stringify({ error: e.message || "Server error" }), { status: 500, headers: { "Content-Type": "application/json", ...CORS_HEADERS } });
-  }
-}
-
-// Gallery GET handler
-async function handleGalleryGet(request: Request, env: Env): Promise<Response> {
-  try {
-    const indexKey = "gallery_index";
-    const indexVal = await env.GALLERY.get(indexKey);
-    const ids: string[] = indexVal ? JSON.parse(indexVal) : [];
-    const images = [];
-    for (const id of ids) {
-      const raw = await env.GALLERY.get(id, { type: "json" });
-      if (raw) images.push(raw);
-    }
-    return new Response(JSON.stringify({ images }), { headers: { "Content-Type": "application/json", ...CORS_HEADERS } });
-  } catch (e: any) {
-    return new Response(JSON.stringify({ error: e.message || "Server error" }), { status: 500, headers: { "Content-Type": "application/json", ...CORS_HEADERS } });
   }
 }
 
@@ -623,15 +551,9 @@ export default {
       return new Response(null, { headers: CORS_HEADERS });
     }
 
-if (url.pathname === "/api/generate" && request.method === "POST") {
-        return handleGenerate(request, env);
-      }
-      if (url.pathname === "/api/gallery" && request.method === "POST") {
-        return handleGalleryPost(request, env);
-      }
-      if (url.pathname === "/api/gallery" && request.method === "GET") {
-        return handleGalleryGet(request, env);
-      }
+    if (url.pathname === "/api/generate" && request.method === "POST") {
+      return handleGenerate(request, env);
+    }
 
     return new Response(HTML_CONTENT, {
       headers: { "Content-Type": "text/html;charset=utf-8" },

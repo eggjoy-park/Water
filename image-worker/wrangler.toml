@@ -5,8 +5,3 @@ compatibility_flags = ["nodejs_compat"]
 
 [ai]
 binding = "AI"
-
-[[kv_namespaces]]
-binding = "GALLERY"
-# TODO: replace <KV_ID> with actual KV namespace ID from Cloudflare dashboard
-id = "<KV_ID>"
