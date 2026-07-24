@@ -228,8 +228,14 @@ const styles = `
 `;
 
 const formStyles = `
-  :host { display: block; }
-  .form-card { padding: 8px 0; }
+  :host { display: block; padding: 20px 0; }
+  .form-card { 
+    padding: 24px;
+    background: var(--glass-bg, rgba(255,255,255,0.05));
+    border: 1px solid var(--glass-border, rgba(255,255,255,0.1));
+    border-radius: 16px;
+    backdrop-filter: blur(20px);
+  }
   .form-title {
     font-size: 1.4em;
     font-weight: 700;
@@ -401,7 +407,7 @@ const formStyles = `
 `;
 
 const detailStyles = `
-  :host { display: block; }
+  :host { display: block; padding: 20px 0; }
   .detail { padding: 8px 0; }
   .post-header { margin-bottom: 24px; }
   .post-title {
