@@ -308,7 +308,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            title: (window._lastEnglishPrompt || '').slice(0, 50),
+            title: (window._lastEnglishPrompt || 'AI Generated Image').slice(0, 50),
             content: '한국어: ' + (window._lastKoreanPrompt || lastKoreanPrompt) + '\\n\\nEnglish: ' + (window._lastEnglishPrompt || ''),
             image_url: 'data:image/png;base64,' + base64,
             password: 'gallery123'
@@ -318,7 +318,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
         console.log('Response:', res.status, data);
         if (!res.ok) {
           console.error('API Error:', res.status, data);
-          throw new Error(data.error || `HTTP ${res.status}`);
+          throw new Error(data.error || 'HTTP ' + res.status);
         }
         alert('갤러리 게시판에 등록되었습니다!');
         // 갤러리 페이지 URL 구성
