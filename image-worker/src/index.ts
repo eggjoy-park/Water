@@ -294,13 +294,6 @@ const HTML_CONTENT = `<!DOCTYPE html>
       try {
         var base64 = window._lastBase64Image;
         console.log('Base64 length:', base64.length);
-        // 이미지가 너무 크면 (130KB 이상) data URL로 저장하지 않음
-        if (base64.length > 130000) {
-          alert('이미지가 너무 큽니다. 직접 이미지 URL을 복사해주세요.');
-          btn.disabled = false;
-          btn.textContent = '갤러리 게시판에 등록';
-          return;
-        }
         var boardApiBase = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
           ? 'http://localhost:8787'
           : 'https://board-worker.eggjoy.workers.dev';
@@ -321,10 +314,9 @@ const HTML_CONTENT = `<!DOCTYPE html>
           throw new Error(data.error || 'HTTP ' + res.status);
         }
         alert('갤러리 게시판에 등록되었습니다!');
-        // 갤러리 페이지 URL 구성
         var galleryUrl = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
-          ? 'http://localhost:8787/board/gallery.html?page=1'
-          : 'https://eggjoy.workers.dev/board/gallery.html?page=1';
+          ? '/board/gallery.html?page=1'
+          : 'https://board-worker.eggjoy.workers.dev/gallery.html?page=1';
         window.location.href = galleryUrl;
       } catch (e) {
         alert('등록 실패: ' + (e.message || '오류가 발생했습니다.'));

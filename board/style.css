@@ -153,7 +153,7 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  board-list, board-post {
+  board-list, board-post, gallery-list, gallery-post {
     animation: fadeIn 0.3s ease;
   }
 }

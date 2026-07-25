@@ -251,11 +251,18 @@ async function handleGalleryPosts(request, env) {
     if (!title || !content || !password) return error('제목, 내용, 비밀번호를 모두 입력해주세요.');
 
     const hashedPw = await hashPassword(password);
-    const result = await env.DB.prepare(
-      'INSERT INTO gallery_posts (title, content, password, image_url, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'
-    ).bind(title, content, hashedPw, image_url || null, now(), now()).run();
-
-    return json({ id: result.meta.last_row_id, message: '갤러리 글이 작성되었습니다.' }, 201);
+    try {
+      const result = await env.DB.prepare(
+        'INSERT INTO gallery_posts (title, content, password, image_url, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'
+      ).bind(title, content, hashedPw, image_url || null, now(), now()).run();
+      return json({ id: result.meta.last_row_id, message: '갤러리 글이 작성되었습니다.' }, 201);
+    } catch (e) {
+      console.error('Gallery insert error:', e.message);
+      if (e.message && e.message.includes('too large')) {
+        return error('이미지가 너무 큽니다. 더 작은 이미지를 사용해주세요.', 413);
+      }
+      return error('갤러리 등록 중 오류가 발생했습니다: ' + (e.message || '알 수 없는 오류'), 500);
+    }
   }
 
   return error('Method not allowed', 405);
