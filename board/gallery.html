@@ -11,15 +11,26 @@
   <script type="module" src="gallery.js"></script>
 </head>
 <body>
-  <page-header></page-header>
+  <page-header title="" subtitle=""></page-header>
   
   <main class="main-content">
     <div class="board-container">
-      <header class="board-header">
-        <h1 class="board-title">갤러리 게시판</h1>
-        <div class="board-actions">
-          <a href="gallery-post.html" class="write-btn">글쓰기</a>
-          <a href="https://image-generator.eggjoy.workers.dev" class="write-btn" style="background: linear-gradient(135deg, rgba(160, 100, 255, 0.85), rgba(130, 80, 255, 0.9));">AI 이미지 생성</a>
+      <header class="gallery-hero">
+        <div class="gallery-hero-bg" aria-hidden="true"></div>
+        <div class="gallery-hero-content">
+          <span class="gallery-hero-eyebrow">✦ GALLERY</span>
+          <h1 class="gallery-hero-title">갤러리 게시판</h1>
+          <p class="gallery-hero-sub">AI와 함께 만든 이미지, 그리고 당신의灵感을 나눠보세요.</p>
+          <div class="gallery-actions">
+            <a href="gallery-post.html" class="gallery-action-btn primary">
+              <span class="btn-icon">＋</span>
+              <span>글쓰기</span>
+            </a>
+            <a href="https://image-generator.eggjoy.workers.dev" class="gallery-action-btn accent">
+              <span class="btn-icon">🎨</span>
+              <span>AI 이미지 생성</span>
+            </a>
+          </div>
         </div>
       </header>
       <gallery-list></gallery-list>
