@@ -1,6 +1,7 @@
 
 import './news-widget.js';
 import './fortune-widget.js';
+import './biorhythm-widget.js';
 
 class PageHeader extends HTMLElement {
   constructor() {

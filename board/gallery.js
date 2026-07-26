@@ -91,7 +91,8 @@ class BoardGallery extends HTMLElement {
           <article class="gallery-card" data-id="${p.id}">
             ${p.image_url ? `
               <a href="gallery-post.html?id=${p.id}" class="gallery-image-wrap">
-                <img src="${p.image_url}" alt="${escapeHtml(p.title)}" loading="lazy">
+                <div class="image-loading"><div class="spinner"></div><span>로딩중...</span></div>
+                <img src="${p.image_url}" alt="${escapeHtml(p.title)}" loading="lazy" onload="this.previousElementSibling.remove();this.classList.add('loaded')">
                 <div class="gallery-image-overlay">
                   <span>자세히 보기 →</span>
                 </div>
@@ -228,6 +229,52 @@ const styles = `
     font-size: 3rem;
     opacity: 0.4;
     filter: grayscale(0.5);
+  }
+
+  .image-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: rgba(0,0,0,0.15);
+    z-index: 2;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.7);
+  }
+  .spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid rgba(255,255,255,0.15);
+    border-top-color: rgba(255,255,255,0.8);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  .gallery-image-wrap img {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .gallery-image-wrap img.loaded {
+    opacity: 1;
+  }
+
+  .post-image {
+    position: relative;
+  }
+  .post-image .image-loading {
+    background: rgba(0,0,0,0.25);
+  }
+  .post-image img {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .post-image img.loaded {
+    opacity: 1;
   }
 
   .gallery-info {
@@ -574,6 +621,7 @@ const detailStyles = `
   }
 
   .post-image {
+    position: relative;
     margin: 24px 0;
     border-radius: 16px;
     overflow: hidden;
@@ -581,12 +629,40 @@ const detailStyles = `
     box-shadow: 0 8px 32px rgba(0,0,0,0.3);
     background: rgba(0,0,0,0.2);
   }
+  .post-image .image-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: rgba(0,0,0,0.25);
+    z-index: 2;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.7);
+  }
+  .spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid rgba(255,255,255,0.15);
+    border-top-color: rgba(255,255,255,0.8);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
   .post-image img {
     width: 100%;
     max-height: 600px;
     object-fit: contain;
     display: block;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, opacity 0.4s ease;
+    opacity: 0;
+  }
+  .post-image img.loaded {
+    opacity: 1;
   }
   .post-image:hover img {
     transform: scale(1.02);
@@ -1147,7 +1223,7 @@ class GalleryPost extends HTMLElement {
             ${post.updated_at !== post.created_at ? `<span class="post-edited">(수정됨)</span>` : ''}
           </div>
         </div>
-        ${post.image_url ? `<div class="post-image"><img src="${post.image_url}" alt="${escapeHtml(post.title)}" loading="lazy"></div>` : ''}
+        ${post.image_url ? `<div class="post-image"><div class="image-loading"><div class="spinner"></div><span>로딩중...</span></div><img src="${post.image_url}" alt="${escapeHtml(post.title)}" loading="lazy" onload="this.previousElementSibling.remove();this.classList.add('loaded')"></div>` : ''}
         <div class="post-content">${escapeHtml(post.content).replace(/\n/g, '<br>')}</div>
         <div class="post-actions">
           <button class="like-btn ${this.liked ? 'liked' : ''}" id="like-btn">

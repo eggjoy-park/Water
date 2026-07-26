@@ -78,8 +78,8 @@ class WeatherWidget extends HTMLElement {
   renderWeather(data) {
     const { current_condition: [current], nearest_area: [area] } = data;
     const temperature = current.temp_C;
-    const description = current.lang_ko[0].value;
-    const location = area.areaName[0].value;
+    const description = current.lang_ko && current.lang_ko[0] ? current.lang_ko[0].value : current.weatherDesc[0].value;
+    const location = '서울';
     const weatherIcon = this.getWeatherIcon(current.weatherCode);
     const today = new Date();
     const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
