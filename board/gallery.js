@@ -90,9 +90,9 @@ class BoardGallery extends HTMLElement {
         ${this.posts.map(p => `
           <article class="gallery-card" data-id="${p.id}">
             ${p.image_url ? `
-              <a href="gallery-post.html?id=${p.id}" class="gallery-image-wrap has-image">
+              <a href="gallery-post.html?id=${p.id}" class="gallery-image-wrap has-image" data-src="${p.image_url}">
                 <div class="image-loading"><div class="spinner"></div><span>로딩중...</span></div>
-                <img src="${p.image_url}" alt="${escapeHtml(p.title)}">
+                <img alt="${escapeHtml(p.title)}">
                 <div class="gallery-image-overlay">
                   <span>자세히 보기 →</span>
                 </div>
@@ -123,18 +123,15 @@ class BoardGallery extends HTMLElement {
       this.shadowRoot.querySelectorAll('.gallery-image-wrap.has-image').forEach(wrap => {
         const img = wrap.querySelector('img');
         const loading = wrap.querySelector('.image-loading');
-        if (!img || !loading) return;
-        const done = () => {
+        const src = wrap.dataset.src;
+        if (!img || !loading || !src) return;
+        img.onload = () => {
           loading.classList.add('done');
         };
-        if (img.complete) {
-          done();
-        } else {
-          img.addEventListener('load', done, { once: true });
-          img.addEventListener('error', () => {
-            loading.innerHTML = '<span>이미지 로드 실패</span>';
-          }, { once: true });
-        }
+        img.onerror = () => {
+          loading.innerHTML = '<span>이미지 로드 실패</span>';
+        };
+        img.src = src;
       });
     });
   }
@@ -1238,7 +1235,7 @@ class GalleryPost extends HTMLElement {
             ${post.updated_at !== post.created_at ? `<span class="post-edited">(수정됨)</span>` : ''}
           </div>
         </div>
-        ${post.image_url ? `<div class="post-image"><div class="image-loading"><div class="spinner"></div><span>로딩중...</span></div><img src="${post.image_url}" alt="${escapeHtml(post.title)}"></div>` : ''}
+        ${post.image_url ? `<div class="post-image" data-src="${post.image_url}"><div class="image-loading"><div class="spinner"></div><span>로딩중...</span></div><img alt="${escapeHtml(post.title)}"></div>` : ''}
         <div class="post-content">${escapeHtml(post.content).replace(/\n/g, '<br>')}</div>
         <div class="post-actions">
           <button class="like-btn ${this.liked ? 'liked' : ''}" id="like-btn">
@@ -1319,21 +1316,21 @@ class GalleryPost extends HTMLElement {
     });
 
     // Image loading
-    const postImg = this.shadowRoot.querySelector('.post-image img');
-    if (postImg) {
-      const loading = this.shadowRoot.querySelector('.post-image .image-loading');
-      if (loading) {
-        const done = () => {
-          loading.classList.add('done');
-        };
-        if (postImg.complete) {
-          requestAnimationFrame(done);
-        } else {
-          postImg.addEventListener('load', done, { once: true });
-          postImg.addEventListener('error', () => {
+    const postImage = this.shadowRoot.querySelector('.post-image');
+    if (postImage) {
+      const postImg = postImage.querySelector('img');
+      const loading = postImage.querySelector('.image-loading');
+      const src = postImage.dataset.src;
+      if (postImg && loading && src) {
+        requestAnimationFrame(() => {
+          postImg.onload = () => {
+            loading.classList.add('done');
+          };
+          postImg.onerror = () => {
             loading.innerHTML = '<span>이미지 로드 실패</span>';
-          }, { once: true });
-        }
+          };
+          postImg.src = src;
+        });
       }
     }
 
