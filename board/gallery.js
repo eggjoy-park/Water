@@ -92,7 +92,7 @@ class BoardGallery extends HTMLElement {
             ${p.image_url ? `
               <a href="gallery-post.html?id=${p.id}" class="gallery-image-wrap has-image">
                 <div class="image-loading"><div class="spinner"></div><span>로딩중...</span></div>
-                <img src="${p.image_url}" alt="${escapeHtml(p.title)}" loading="lazy">
+                <img src="${p.image_url}" alt="${escapeHtml(p.title)}">
                 <div class="gallery-image-overlay">
                   <span>자세히 보기 →</span>
                 </div>
@@ -125,7 +125,6 @@ class BoardGallery extends HTMLElement {
         const loading = wrap.querySelector('.image-loading');
         if (!img || !loading) return;
         const done = () => {
-          img.classList.add('loaded');
           loading.classList.add('done');
         };
         if (img.complete) {
@@ -280,13 +279,6 @@ const styles = `
   @keyframes spin {
     to { transform: rotate(360deg); }
   }
-  .gallery-image-wrap img {
-    opacity: 0;
-    transition: opacity 0.4s ease;
-  }
-  .gallery-image-wrap img.loaded {
-    opacity: 1;
-  }
 
   .post-image {
     position: relative;
@@ -297,13 +289,6 @@ const styles = `
   .post-image .image-loading.done {
     opacity: 0;
     pointer-events: none;
-  }
-  .post-image img {
-    opacity: 0;
-    transition: opacity 0.4s ease;
-  }
-  .post-image img.loaded {
-    opacity: 1;
   }
 
   .gallery-info {
@@ -692,11 +677,7 @@ const detailStyles = `
     max-height: 600px;
     object-fit: contain;
     display: block;
-    transition: transform 0.3s ease, opacity 0.4s ease;
-    opacity: 0;
-  }
-  .post-image img.loaded {
-    opacity: 1;
+    transition: transform 0.3s ease;
   }
   .post-image:hover img {
     transform: scale(1.02);
@@ -1257,7 +1238,7 @@ class GalleryPost extends HTMLElement {
             ${post.updated_at !== post.created_at ? `<span class="post-edited">(수정됨)</span>` : ''}
           </div>
         </div>
-        ${post.image_url ? `<div class="post-image"><div class="image-loading"><div class="spinner"></div><span>로딩중...</span></div><img src="${post.image_url}" alt="${escapeHtml(post.title)}" loading="lazy"></div>` : ''}
+        ${post.image_url ? `<div class="post-image"><div class="image-loading"><div class="spinner"></div><span>로딩중...</span></div><img src="${post.image_url}" alt="${escapeHtml(post.title)}"></div>` : ''}
         <div class="post-content">${escapeHtml(post.content).replace(/\n/g, '<br>')}</div>
         <div class="post-actions">
           <button class="like-btn ${this.liked ? 'liked' : ''}" id="like-btn">
@@ -1343,7 +1324,6 @@ class GalleryPost extends HTMLElement {
       const loading = this.shadowRoot.querySelector('.post-image .image-loading');
       if (loading) {
         const done = () => {
-          postImg.classList.add('loaded');
           loading.classList.add('done');
         };
         if (postImg.complete) {
