@@ -92,7 +92,7 @@ class BoardGallery extends HTMLElement {
             ${p.image_url ? `
               <a href="gallery-post.html?id=${p.id}" class="gallery-image-wrap">
                 <div class="image-loading"><div class="spinner"></div><span>로딩중...</span></div>
-                <img src="${p.image_url}" alt="${escapeHtml(p.title)}" loading="lazy" onload="this.previousElementSibling.remove();this.classList.add('loaded')">
+                <img src="${p.image_url}" alt="${escapeHtml(p.title)}" loading="lazy">
                 <div class="gallery-image-overlay">
                   <span>자세히 보기 →</span>
                 </div>
@@ -118,6 +118,24 @@ class BoardGallery extends HTMLElement {
       </div>
       <div id="pagination" class="pagination"></div>
     `;
+
+    this.shadowRoot.querySelectorAll('.gallery-image-wrap img').forEach(img => {
+      const loading = img.previousElementSibling;
+      if (loading && loading.classList.contains('image-loading')) {
+        if (img.complete) {
+          loading.remove();
+          img.classList.add('loaded');
+        } else {
+          img.addEventListener('load', () => {
+            loading.remove();
+            img.classList.add('loaded');
+          }, { once: true });
+          img.addEventListener('error', () => {
+            loading.innerHTML = '<span>이미지 로드 실패</span>';
+          }, { once: true });
+        }
+      }
+    });
   }
 }
 
@@ -1223,7 +1241,7 @@ class GalleryPost extends HTMLElement {
             ${post.updated_at !== post.created_at ? `<span class="post-edited">(수정됨)</span>` : ''}
           </div>
         </div>
-        ${post.image_url ? `<div class="post-image"><div class="image-loading"><div class="spinner"></div><span>로딩중...</span></div><img src="${post.image_url}" alt="${escapeHtml(post.title)}" loading="lazy" onload="this.previousElementSibling.remove();this.classList.add('loaded')"></div>` : ''}
+        ${post.image_url ? `<div class="post-image"><div class="image-loading"><div class="spinner"></div><span>로딩중...</span></div><img src="${post.image_url}" alt="${escapeHtml(post.title)}" loading="lazy"></div>` : ''}
         <div class="post-content">${escapeHtml(post.content).replace(/\n/g, '<br>')}</div>
         <div class="post-actions">
           <button class="like-btn ${this.liked ? 'liked' : ''}" id="like-btn">
@@ -1302,6 +1320,26 @@ class GalleryPost extends HTMLElement {
       count.textContent = d.like_count;
       this.liked = d.liked;
     });
+
+    // Image loading
+    const postImg = this.shadowRoot.querySelector('.post-image img');
+    if (postImg) {
+      const loading = postImg.previousElementSibling;
+      if (loading && loading.classList.contains('image-loading')) {
+        if (postImg.complete) {
+          loading.remove();
+          postImg.classList.add('loaded');
+        } else {
+          postImg.addEventListener('load', () => {
+            loading.remove();
+            postImg.classList.add('loaded');
+          }, { once: true });
+          postImg.addEventListener('error', () => {
+            loading.innerHTML = '<span>이미지 로드 실패</span>';
+          }, { once: true });
+        }
+      }
+    }
 
     // Like toggle
     this.shadowRoot.getElementById('like-btn').addEventListener('click', async () => {
