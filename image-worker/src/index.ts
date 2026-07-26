@@ -162,6 +162,124 @@ const HTML_CONTENT = `<!DOCTYPE html>
     }
     .gallery-btn:hover { opacity: 0.9; }
     .gallery-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .loading-steps {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      text-align: left;
+      max-width: 280px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .loading-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #555;
+      transition: color 0.3s;
+    }
+    .loading-step.active {
+      color: #667eea;
+    }
+    .loading-step.done {
+      color: #4ade80;
+    }
+    .loading-step.done .step-icon {
+      color: #4ade80;
+    }
+    .step-icon {
+      font-size: 10px;
+      transition: color 0.3s;
+    }
+    .step-label {
+      font-size: 13px;
+    }
+    #loading-text {
+      margin-bottom: 4px;
+    }
+    .prompt-comparison {
+      margin-top: 20px;
+      text-align: left;
+    }
+    .comparison-header {
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .comparison-badge {
+      display: inline-block;
+      padding: 4px 14px;
+      background: linear-gradient(135deg, rgba(102,126,234,0.15), rgba(118,75,162,0.15));
+      border: 1px solid rgba(102,126,234,0.3);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #667eea;
+      letter-spacing: 0.3px;
+    }
+    .comparison-grid {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+    }
+    .comparison-item {
+      flex: 1;
+      min-width: 0;
+    }
+    .comparison-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #aaa;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .label-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    .original-dot { background: #ff6b6b; }
+    .enhanced-dot { background: #4ade80; }
+    .comparison-text {
+      padding: 14px;
+      background: #1a1a1a;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #ccc;
+      min-height: 80px;
+      word-break: break-word;
+    }
+    .comparison-item.original .comparison-text {
+      border-left: 3px solid #ff6b6b;
+    }
+    .comparison-item.enhanced .comparison-text {
+      border-left: 3px solid #4ade80;
+    }
+    .comparison-arrow {
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      font-size: 20px;
+      color: #444;
+      margin-top: 20px;
+    }
+    @media (max-width: 600px) {
+      .comparison-grid {
+        flex-direction: column;
+      }
+      .comparison-arrow {
+        padding: 8px 0;
+        justify-content: center;
+        transform: rotate(90deg);
+      }
+    }
   </style>
 </head>
 <body>
@@ -190,7 +308,25 @@ const HTML_CONTENT = `<!DOCTYPE html>
 
     <div class="loading" id="loading">
       <div class="spinner"></div>
-      <p>이미지 생성 중...</p>
+      <p id="loading-text">이미지 생성 중...</p>
+      <div class="loading-steps" id="loading-steps">
+        <div class="loading-step" id="step-enhance" data-step="1">
+          <span class="step-icon">✦</span>
+          <span class="step-label">한국어 프롬프트 보강 중...</span>
+        </div>
+        <div class="loading-step" id="step-translate" data-step="2">
+          <span class="step-icon">✦</span>
+          <span class="step-label">영어로 번역 중...</span>
+        </div>
+        <div class="loading-step" id="step-optimize" data-step="3">
+          <span class="step-icon">✦</span>
+          <span class="step-label">이미지 생성 최적화 중...</span>
+        </div>
+        <div class="loading-step" id="step-generate" data-step="4">
+          <span class="step-icon">✦</span>
+          <span class="step-label">이미지 생성 중...</span>
+        </div>
+      </div>
     </div>
 
     <div class="error" id="error"></div>
@@ -198,12 +334,32 @@ const HTML_CONTENT = `<!DOCTYPE html>
     <div class="result" id="result" style="display:none;">
       <div class="result-label">생성된 이미지</div>
       <img id="resultImg">
-      <div class="prompt-display">
-        <div class="label">한국어 프롬프트:</div>
-        <div class="text" id="displayed-korean-prompt"></div>
+      
+      <div class="prompt-comparison">
+        <div class="comparison-header">
+          <span class="comparison-badge">프롬프트 보강 결과</span>
+        </div>
+        <div class="comparison-grid">
+          <div class="comparison-item original">
+            <div class="comparison-label">
+              <span class="label-dot original-dot"></span>
+              원본 프롬프트
+            </div>
+            <div class="comparison-text" id="original-prompt-text"></div>
+          </div>
+          <div class="comparison-arrow">→</div>
+          <div class="comparison-item enhanced">
+            <div class="comparison-label">
+              <span class="label-dot enhanced-dot"></span>
+              보강된 한국어 프롬프트
+            </div>
+            <div class="comparison-text" id="displayed-korean-prompt"></div>
+          </div>
+        </div>
       </div>
+
       <div class="prompt-display">
-        <div class="label">영어 프롬프트:</div>
+        <div class="label">최종 영어 프롬프트:</div>
         <div class="text" id="displayed-english-prompt"></div>
       </div>
       <div>
@@ -236,6 +392,31 @@ const HTML_CONTENT = `<!DOCTYPE html>
 
       var sizeVal = document.getElementById('size').value.split('x');
 
+      // 로딩 단계 애니메이션
+      var steps = ['step-enhance', 'step-translate', 'step-optimize', 'step-generate'];
+      var currentStep = 0;
+      var stepTimer = null;
+
+      // 이전 단계 상태 초기화
+      steps.forEach(function(s) {
+        var el = document.getElementById(s);
+        if (el) { el.classList.remove('active', 'done'); }
+      });
+
+      function advanceStep() {
+        if (currentStep > 0) {
+          var prev = document.getElementById(steps[currentStep - 1]);
+          if (prev) { prev.classList.remove('active'); prev.classList.add('done'); }
+        }
+        if (currentStep < steps.length) {
+          var curr = document.getElementById(steps[currentStep]);
+          if (curr) { curr.classList.add('active'); }
+          currentStep++;
+          stepTimer = setTimeout(advanceStep, 1500);
+        }
+      }
+      advanceStep();
+
       try {
         var res = await fetch('/api/generate', {
           method: 'POST',
@@ -249,7 +430,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
 
         var text = await res.text();
         var json;
-        try { json = JSON.parse(text); } catch { throw new Error('서버 오류가 발생했습니다.'); }
+        try { json = JSON.parse(text); } catch(e) { throw new Error('서버 오류가 발생했습니다.'); }
 
         if (json.error) throw new Error(json.error);
         if (!json.image) throw new Error('이미지 데이터를 받지 못했습니다.');
@@ -269,14 +450,21 @@ const HTML_CONTENT = `<!DOCTYPE html>
 
         document.getElementById('resultImg').src = currentBlobUrl;
         document.getElementById('downloadBtn').href = currentBlobUrl;
+        document.getElementById('original-prompt-text').textContent = promptText;
         document.getElementById('displayed-korean-prompt').textContent = window._lastKoreanPrompt;
         document.getElementById('displayed-english-prompt').textContent = window._lastEnglishPrompt;
         result.style.display = 'block';
       } catch (e) {
         showError(e.message || '알 수 없는 오류가 발생했습니다.');
       } finally {
+        if (stepTimer) clearTimeout(stepTimer);
+        // 모든 단계 완료 처리
+        steps.forEach(function(s) {
+          var el = document.getElementById(s);
+          if (el) { el.classList.remove('active'); el.classList.add('done'); }
+        });
         btn.disabled = false;
-        loading.classList.remove('active');
+        setTimeout(function() { loading.classList.remove('active'); }, 500);
       }
     }
 
@@ -288,12 +476,15 @@ const HTML_CONTENT = `<!DOCTYPE html>
 
     document.getElementById('postToGalleryBtn').addEventListener('click', async function() {
       if (!window._lastBase64Image) { alert('이미지가 없습니다.'); return; }
+      var password = prompt('비밀번호를 입력하세요 (나중에 수정/삭제 시 필요):');
+      if (!password) return;
       var btn = this;
       btn.disabled = true;
       btn.textContent = '등록 중...';
       try {
         var base64 = window._lastBase64Image;
-        console.log('Base64 length:', base64.length);
+        var title = (window._lastEnglishPrompt || 'AI Generated Image').slice(0, 50);
+        var content = '한국어: ' + (window._lastKoreanPrompt || '') + '\\n\\nEnglish: ' + (window._lastEnglishPrompt || '');
         var boardApiBase = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
           ? 'http://localhost:8787'
           : 'https://board-worker.eggjoy.workers.dev';
@@ -301,19 +492,14 @@ const HTML_CONTENT = `<!DOCTYPE html>
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            title: (window._lastEnglishPrompt || 'AI Generated Image').slice(0, 50),
-            content: '한국어: ' + (window._lastKoreanPrompt || lastKoreanPrompt) + '\\n\\nEnglish: ' + (window._lastEnglishPrompt || ''),
+            title: title,
+            content: content,
             image_url: 'data:image/png;base64,' + base64,
-            password: 'gallery123'
+            password: password
           })
         });
         var data = await res.json();
-        console.log('Response:', res.status, data);
-        if (!res.ok) {
-          console.error('API Error:', res.status, data);
-          throw new Error(data.error || 'HTTP ' + res.status);
-        }
-        alert('갤러리 게시판에 등록되었습니다!');
+        if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
         var galleryUrl = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
           ? '/board/gallery.html?page=1'
           : 'https://board-worker.eggjoy.workers.dev/gallery.html?page=1';
@@ -335,38 +521,69 @@ const CORS_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
+async function readStreamToString(stream: ReadableStream): Promise<string> {
+  const reader = stream.getReader();
+  const chunks: Uint8Array[] = [];
+  let totalLength = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    totalLength += value.length;
+  }
+  const bytes = new Uint8Array(totalLength);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.length;
+  }
+  return new TextDecoder().decode(bytes);
+}
+
+async function parseAIResponse(response: any): Promise<string> {
+  if (typeof response === 'string') return response;
+  if (response instanceof ReadableStream) {
+    const text = await readStreamToString(response);
+    try {
+      const parsed = JSON.parse(text);
+      if (parsed.response) return parsed.response;
+      if (parsed.generated_text) return parsed.generated_text;
+      if (parsed.text) return parsed.text;
+      return text;
+    } catch {
+      return text;
+    }
+  }
+  if (response && typeof response === 'object') {
+    if ('response' in response && typeof response.response === 'string') return response.response;
+    if ('generated_text' in response && typeof response.generated_text === 'string') return response.generated_text;
+    if ('text' in response && typeof response.text === 'string') return response.text;
+  }
+  return '';
+}
+
 async function translateAndEnhancePrompt(koreanPrompt: string, env: Env): Promise<{ korean: string; english: string }> {
   try {
-    // 1단계: 한국어 프롬프트 보충/구체화 (LLM으로 더 자세하게 묘사)
+    // 1단계: 한국어 프롬프트 구체화
     let enhancedKorean = koreanPrompt;
     try {
-      const enhanceKoreanResponse = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", {
+      const raw = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
         messages: [
           {
-            role: "system",
-            content: "당신은 AI 이미지 생성을 위한 프롬프트 전문가입니다. 사용자의 간단한 한국어 설명을 받아, 이미지 생성에 최적화되도록 더 구체적이고 풍부하게 한국어로 확장해주세요. 조명, 구도, 분위기, 스타일, 텍스처, 색감 등 시각적 디테일을 추가하세요. 설명만 출력하고 다른 말은 하지 마세요.",
-          },
-          {
             role: "user",
-            content: koreanPrompt
+            content: `다음 한국어 설명을 AI 이미지 생성에 사용할 수 있도록 더 구체적이고 상세하게 묘사해줘. 피사체의 형태, 색상, 질감, 배경, 조명, 분위기, 예술 스타일 등을 추가하고, 한국어로 출력해줘. 설명만 출력해줘.\n\n원본: ${koreanPrompt}\n\n보강된 묘사:`
           }
         ],
         max_tokens: 500,
         temperature: 0.7,
       });
 
-      if (typeof enhanceKoreanResponse === 'string') {
-        enhancedKorean = enhanceKoreanResponse;
-      } else if (enhanceKoreanResponse && typeof enhanceKoreanResponse === 'object') {
-        if ('response' in enhanceKoreanResponse && typeof (enhanceKoreanResponse as any).response === 'string') {
-          enhancedKorean = (enhanceKoreanResponse as any).response;
-        } else if ('generated_text' in enhanceKoreanResponse && typeof (enhanceKoreanResponse as any).generated_text === 'string') {
-          enhancedKorean = (enhanceKoreanResponse as any).generated_text;
-        } else if ('text' in enhanceKoreanResponse && typeof (enhanceKoreanResponse as any).text === 'string') {
-          enhancedKorean = (enhanceKoreanResponse as any).text;
-        }
+      const parsed = await parseAIResponse(raw);
+      if (parsed && parsed.trim()) {
+        enhancedKorean = parsed.trim();
       }
-    } catch {
+    } catch (e: any) {
+      console.log("[Enhance-KO] Step 1 failed:", e.message);
       enhancedKorean = koreanPrompt;
     }
 
@@ -376,47 +593,35 @@ async function translateAndEnhancePrompt(koreanPrompt: string, env: Env): Promis
       const translateResponse = await env.AI.run("@cf/huggingface/helsinki-nlp/opus-mt-ko-en", {
         text: enhancedKorean,
       });
-      if (typeof translateResponse === 'string') {
-        translated = translateResponse;
-      } else if (translateResponse && typeof translateResponse === 'object') {
-        if ('translation' in translateResponse && typeof (translateResponse as any).translation === 'string') {
-          translated = (translateResponse as any).translation;
-        } else if ('translation_text' in translateResponse && typeof (translateResponse as any).translation_text === 'string') {
-          translated = (translateResponse as any).translation_text;
-        } else if ('generated_text' in translateResponse && typeof (translateResponse as any).generated_text === 'string') {
-          translated = (translateResponse as any).generated_text;
-        } else if ('text' in translateResponse && typeof (translateResponse as any).text === 'string') {
-          translated = (translateResponse as any).text;
-        } else if (Array.isArray(translateResponse) && translateResponse.length > 0) {
-          const firstItem = translateResponse[0];
-          if (typeof firstItem === 'string') {
-            translated = firstItem;
-          } else if (firstItem && typeof firstItem === 'object') {
-            if ('translation_text' in firstItem && typeof (firstItem as any).translation_text === 'string') {
-              translated = (firstItem as any).translation_text;
-            } else if ('generated_text' in firstItem && typeof (firstItem as any).generated_text === 'string') {
-              translated = (firstItem as any).generated_text;
-            }
-          }
-        }
+      const parsed = await parseAIResponse(translateResponse);
+      if (parsed && parsed.trim()) {
+        translated = parsed.trim();
       }
-    } catch {
+      // Also check for translation-specific fields
+      if (translateResponse && typeof translateResponse === 'object' && !(translateResponse instanceof ReadableStream)) {
+        const r = translateResponse as any;
+        if (r.translation && typeof r.translation === 'string') translated = r.translation;
+        if (r.translation_text && typeof r.translation_text === 'string') translated = r.translation_text;
+      }
+    } catch (e: any) {
+      console.log("[Enhance-KO] Translation failed:", e.message);
       try {
         const translateResponse = await env.AI.run("@cf/meta/m2m100-1.2b", {
           text: enhancedKorean,
           source_lang: "ko",
           target_lang: "en",
         });
-        if (typeof translateResponse === 'string') {
-          translated = translateResponse;
-        } else if (translateResponse && typeof translateResponse === 'object') {
-          if ('translation' in translateResponse && typeof (translateResponse as any).translation === 'string') {
-            translated = (translateResponse as any).translation;
-          } else if ('translated_text' in translateResponse && typeof (translateResponse as any).translated_text === 'string') {
-            translated = (translateResponse as any).translated_text;
-          }
+        const parsed = await parseAIResponse(translateResponse);
+        if (parsed && parsed.trim()) {
+          translated = parsed.trim();
         }
-      } catch {
+        if (translateResponse && typeof translateResponse === 'object' && !(translateResponse instanceof ReadableStream)) {
+          const r = translateResponse as any;
+          if (r.translation && typeof r.translation === 'string') translated = r.translation;
+          if (r.translated_text && typeof r.translated_text === 'string') translated = r.translated_text;
+        }
+      } catch (e2: any) {
+        console.log("[Enhance-KO] Fallback translation failed:", e2.message);
         translated = enhancedKorean;
       }
     }
@@ -424,38 +629,33 @@ async function translateAndEnhancePrompt(koreanPrompt: string, env: Env): Promis
     // 3단계: 영어 프롬프트 추가 보충 (이미지 생성 최적화)
     let finalEnglish = translated;
     try {
-      const enhanceResponse = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", {
+      const enhanceResponse = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
         messages: [
           {
-            role: "system",
-            content: "You are a master artist who creates rich, evocative descriptions for AI image generation. Transform the given prompt into a lush, atmospheric visual narrative optimized for FLUX/SD models. Add lighting, composition, mood, style, texture, color details. Output ONLY the enhanced artistic English prompt as a single flowing paragraph. No explanations, just the prompt.",
-          },
-          {
             role: "user",
-            content: translated
+            content: `Take this English prompt and make it more detailed for AI image generation (FLUX model). Add specific details about: subject appearance, background, lighting, composition, mood, art style, and quality keywords (masterpiece, ultra-detailed, 8K). Output ONLY the enhanced prompt as one flowing paragraph. No explanations.
+
+Input: ${translated}
+
+Enhanced prompt:`
           }
         ],
         max_tokens: 500,
         temperature: 0.6,
       });
 
-      if (typeof enhanceResponse === 'string') {
-        finalEnglish = enhanceResponse;
-      } else if (enhanceResponse && typeof enhanceResponse === 'object') {
-        if ('response' in enhanceResponse && typeof (enhanceResponse as any).response === 'string') {
-          finalEnglish = (enhanceResponse as any).response;
-        } else if ('generated_text' in enhanceResponse && typeof (enhanceResponse as any).generated_text === 'string') {
-          finalEnglish = (enhanceResponse as any).generated_text;
-        } else if ('text' in enhanceResponse && typeof (enhanceResponse as any).text === 'string') {
-          finalEnglish = (enhanceResponse as any).text;
-        }
+      const parsed = await parseAIResponse(enhanceResponse);
+      if (parsed && parsed.trim()) {
+        finalEnglish = parsed.trim();
       }
-    } catch {
+    } catch (e: any) {
+      console.log("[Enhance-EN] English enhancement failed:", e.message);
       finalEnglish = translated;
     }
 
     return { korean: enhancedKorean.trim(), english: finalEnglish.trim() };
-  } catch {
+  } catch (e: any) {
+    console.log("[Enhance] Top-level error:", e.message);
     return { korean: koreanPrompt, english: koreanPrompt };
   }
 }
@@ -548,7 +748,11 @@ export default {
     }
 
     return new Response(HTML_CONTENT, {
-      headers: { "Content-Type": "text/html;charset=utf-8" },
+      headers: {
+        "Content-Type": "text/html;charset=utf-8",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "Pragma": "no-cache"
+      },
     });
   },
 } satisfies ExportedHandler<Env>;
