@@ -90,7 +90,7 @@ class BoardGallery extends HTMLElement {
         ${this.posts.map(p => `
           <article class="gallery-card" data-id="${p.id}">
             ${p.image_url ? `
-              <a href="gallery-post.html?id=${p.id}" class="gallery-image-wrap">
+              <a href="gallery-post.html?id=${p.id}" class="gallery-image-wrap has-image">
                 <div class="image-loading"><div class="spinner"></div><span>로딩중...</span></div>
                 <img src="${p.image_url}" alt="${escapeHtml(p.title)}" loading="lazy">
                 <div class="gallery-image-overlay">
@@ -119,22 +119,24 @@ class BoardGallery extends HTMLElement {
       <div id="pagination" class="pagination"></div>
     `;
 
-    this.shadowRoot.querySelectorAll('.gallery-image-wrap img').forEach(img => {
-      const loading = img.previousElementSibling;
-      if (loading && loading.classList.contains('image-loading')) {
-        if (img.complete) {
-          loading.remove();
+    requestAnimationFrame(() => {
+      this.shadowRoot.querySelectorAll('.gallery-image-wrap.has-image').forEach(wrap => {
+        const img = wrap.querySelector('img');
+        const loading = wrap.querySelector('.image-loading');
+        if (!img || !loading) return;
+        const done = () => {
           img.classList.add('loaded');
+          loading.classList.add('done');
+        };
+        if (img.complete) {
+          done();
         } else {
-          img.addEventListener('load', () => {
-            loading.remove();
-            img.classList.add('loaded');
-          }, { once: true });
+          img.addEventListener('load', done, { once: true });
           img.addEventListener('error', () => {
             loading.innerHTML = '<span>이미지 로드 실패</span>';
           }, { once: true });
         }
-      }
+      });
     });
   }
 }
@@ -261,6 +263,11 @@ const styles = `
     z-index: 2;
     font-size: 0.85rem;
     color: rgba(255,255,255,0.7);
+    transition: opacity 0.4s ease;
+  }
+  .image-loading.done {
+    opacity: 0;
+    pointer-events: none;
   }
   .spinner {
     width: 28px;
@@ -286,6 +293,10 @@ const styles = `
   }
   .post-image .image-loading {
     background: rgba(0,0,0,0.25);
+  }
+  .post-image .image-loading.done {
+    opacity: 0;
+    pointer-events: none;
   }
   .post-image img {
     opacity: 0;
@@ -659,6 +670,11 @@ const detailStyles = `
     z-index: 2;
     font-size: 0.85rem;
     color: rgba(255,255,255,0.7);
+    transition: opacity 0.4s ease;
+  }
+  .post-image .image-loading.done {
+    opacity: 0;
+    pointer-events: none;
   }
   .spinner {
     width: 28px;
@@ -1324,16 +1340,16 @@ class GalleryPost extends HTMLElement {
     // Image loading
     const postImg = this.shadowRoot.querySelector('.post-image img');
     if (postImg) {
-      const loading = postImg.previousElementSibling;
-      if (loading && loading.classList.contains('image-loading')) {
-        if (postImg.complete) {
-          loading.remove();
+      const loading = this.shadowRoot.querySelector('.post-image .image-loading');
+      if (loading) {
+        const done = () => {
           postImg.classList.add('loaded');
+          loading.classList.add('done');
+        };
+        if (postImg.complete) {
+          requestAnimationFrame(done);
         } else {
-          postImg.addEventListener('load', () => {
-            loading.remove();
-            postImg.classList.add('loaded');
-          }, { once: true });
+          postImg.addEventListener('load', done, { once: true });
           postImg.addEventListener('error', () => {
             loading.innerHTML = '<span>이미지 로드 실패</span>';
           }, { once: true });
