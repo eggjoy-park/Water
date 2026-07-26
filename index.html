@@ -20,68 +20,47 @@
                 <page-header title="찰스" subtitle="스타트 프로젝트"></page-header>
             </div>
             <div class="profile-body">
-                <div class="content-grid">
-                    <section id="weather">
-                        <h2>오늘의 날씨</h2>
-                        <weather-widget></weather-widget>
-                    </section>
-                    <section id="news">
-                        <h2>주요 뉴스</h2>
-                        <news-widget></news-widget>
-                    </section>
-                    <section id="fortune">
-                        <h2>정보</h2>
-                        <fortune-widget></fortune-widget>
-                    </section>
-                </div>
-                <section id="bio">
-                    <h2>소개</h2>
-                    <p>안녕하세요. 저는 직관적인 사용자 인터페이스와 매력적인 웹 경험을 구축하는 데 집중하는 프론트엔드 개발자입니다. 최신 기술 동향을 꾸준히 학습하여, 사용자 중심의 혁신적인 솔루션을 제공하는 것을 목표로 합니다.</p>
-                </section>
-
-                <section id="interests">
-                    <h2>관심사</h2>
-                    <ul>
-                        <li>AI 동영상 제작</li>
-                        <li>웹페이지 제작</li>
-                        <li>쇼핑몰 운영</li>
-                    </ul>
-                </section>
-
-                <section id="social">
-                    <h2>소셜 미디어</h2>
-                    <social-links></social-links>
-                </section>
-
-                <section id="contact">
-                    <h2>연락처</h2>
-                    <p>저에게 연락하시려면 <a href="mailto:sendm@naver.com">sendm@naver.com</a>으로 이메일을 보내주세요.</p>
+                <section id="widgets">
+                    <div class="content-grid">
+                        <div class="widget-card">
+                            <h2>오늘의 날씨</h2>
+                            <weather-widget></weather-widget>
+                        </div>
+                        <div class="widget-card">
+                            <h2>주요 뉴스</h2>
+                            <news-widget></news-widget>
+                        </div>
+                        <div class="widget-card">
+                            <h2>정보</h2>
+                            <fortune-widget></fortune-widget>
+                        </div>
+                    </div>
                 </section>
 
                 <section id="projects">
                     <h2>프로젝트</h2>
-                    <div class="project-links">
-                        <a class="project-link" href="flip-clock/index.html">
+                    <div class="project-grid">
+                        <a class="project-card" href="flip-clock/index.html">
                             <span class="project-icon">🕐</span>
                             <span class="project-name">플립시계</span>
                         </a>
-                        <a class="project-link" href="tetris/index.html">
+                        <a class="project-card" href="tetris/index.html">
                             <span class="project-icon">🎮</span>
                             <span class="project-name">테트릭스</span>
                         </a>
-                        <a class="project-link" href="roulette.html">
+                        <a class="project-card" href="roulette.html">
                             <span class="project-icon">🎲</span>
                             <span class="project-name">고민 룰렛</span>
                         </a>
-                        <a class="project-link" href="board/gallery.html">
+                        <a class="project-card" href="https://board-worker.eggjoy.workers.dev/gallery?page=1">
                             <span class="project-icon">🖼️</span>
                             <span class="project-name">갤러리 게시판</span>
                         </a>
-                        <a class="project-link" href="board/">
+                        <a class="project-card" href="board/">
                             <span class="project-icon">📋</span>
                             <span class="project-name">게시판</span>
                         </a>
-                        <a class="project-link" href="https://image-generator.eggjoy.workers.dev">
+                        <a class="project-card" href="https://image-generator.eggjoy.workers.dev">
                             <span class="project-icon">🎨</span>
                             <span class="project-name">AI 이미지 생성</span>
                         </a>
